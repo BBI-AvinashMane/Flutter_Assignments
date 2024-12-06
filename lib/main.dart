@@ -1,13 +1,13 @@
+import 'package:clean_to_do_app/features/managetask/data/data-sources/todo_local_data_source.dart';
+import 'package:clean_to_do_app/features/managetask/data/repository/todo_repository_impl.dart';
+import 'package:clean_to_do_app/features/managetask/domain/usecases/add_todo.dart';
+import 'package:clean_to_do_app/features/managetask/domain/usecases/delete_todo.dart';
+import 'package:clean_to_do_app/features/managetask/domain/usecases/edit_todo.dart';
+import 'package:clean_to_do_app/features/managetask/domain/usecases/get_todo_list.dart';
+import 'package:clean_to_do_app/features/managetask/presentation/pages/todo_page.dart';
+import 'package:clean_to_do_app/features/managetask/presentation/providers/todo_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'feature/todo/presentation/pages/todo_page.dart';
-import 'feature/todo/presentation/provider/todo_provider.dart';
-import 'feature/todo/data/datasources/todo_local_data_source.dart';
-import 'feature/todo/data/repositories/todo_repository_impl.dart';
-import 'feature/todo/domain/usecases/add_todo.dart';
-import 'feature/todo/domain/usecases/delete_todo.dart';
-import 'feature/todo/domain/usecases/edit_todo.dart';
-import 'feature/todo/domain/usecases/get_todo_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {

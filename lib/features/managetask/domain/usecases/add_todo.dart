@@ -4,8 +4,6 @@ import 'package:clean_to_do_app/features/managetask/domain/repository/todo_repos
 import 'package:dartz/dartz.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../../core/error/failures.dart';
-import 'package:clean_to_do_app/core/usecases/usecase.dart';
-
 class AddToDo  {
   final ToDoRepository repository;
 

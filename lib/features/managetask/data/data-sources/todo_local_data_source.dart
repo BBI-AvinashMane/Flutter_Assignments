@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ToDoLocalDataSource {
   Future<List<ToDoModel>> getToDoList();
-  Future<void> addToDo(List<ToDoModel> todo);
+  Future<void> addToDo(ToDoModel todo);
   Future<void> editToDo(ToDoModel todo);
   Future<void> deleteToDo(String id);
 }
@@ -28,14 +28,21 @@ class ToDoLocalDataSourceImpl implements ToDoLocalDataSource {
   }
 
   @override
-  Future<void> addToDo(List<ToDoModel> todos) async {
-    final List<ToDoModel> currentList = await getToDoList();
-    currentList.add(todos as ToDoModel);
+ @override
+Future<void> addToDo(ToDoModel todo) async {
+  // Fetch the current list of ToDoModel from SharedPreferences
+  final List<ToDoModel> currentList = await getToDoList();
 
-    final String jsonString =
-        json.encode(currentList.map((item) => item.toJson()).toList());
-    await sharedPreferences.setString(cachedTodoListKey, jsonString); 
-  }
+  // Add the new ToDoModel to the current list
+  currentList.add(todo);
+
+  // Convert the updated list back to JSON and save it
+  final String jsonString =
+      json.encode(currentList.map((item) => item.toJson()).toList());
+  await sharedPreferences.setString(cachedTodoListKey, jsonString);
+}
+
+
 
   @override
   Future<void> editToDo(ToDoModel todo) async {

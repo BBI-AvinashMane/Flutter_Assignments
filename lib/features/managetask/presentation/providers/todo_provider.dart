@@ -22,7 +22,9 @@ class ToDoProvider extends ChangeNotifier {
     required this.addToDo,
     required this.editToDo,
     required this.deleteToDo,
-  });
+  }){
+    loadToDos();
+  }
 
   Future<void> loadToDos() async {
     _isLoading = true;

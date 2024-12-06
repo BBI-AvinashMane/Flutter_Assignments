@@ -14,7 +14,9 @@ class ToDoRepositoryImpl implements ToDoRepository {
   Future<Either<Failure, List<ToDoModel>>> getToDoList() async {
     try {
       final todos = await localDataSource.getToDoList();
-      return Right(todos);
+      // Convert ToDoModel to ToDo (Domain Entity)
+      final todoEntities = todos.map((model) => model.toEntity()).toList();
+      return Right(todoEntities);
     } on CacheException {
       return Left(CacheFailure());
     }
@@ -23,15 +25,9 @@ class ToDoRepositoryImpl implements ToDoRepository {
   @override
   Future<Either<Failure, void>> addToDo(ToDoModel todo) async {
     try {
-      final todos = await localDataSource.getToDoList();
-      final todoModel = ToDoModel(
-        id: todo.id,
-        title: todo.title,
-        description: todo.description,
-        isCompleted: todo.isCompleted,
-      );
-      todos.add(todoModel);
-      await localDataSource.addToDo(todos);
+      // Convert ToDo (Domain Entity) to ToDoModel (Data Model)
+      final todoModel = ToDoModel.fromEntity(todo);
+      await localDataSource.addToDo(todoModel);
       return const Right(null);
     } on CacheException {
       return Left(CacheFailure());
@@ -40,20 +36,11 @@ class ToDoRepositoryImpl implements ToDoRepository {
 
   @override
   Future<Either<Failure, void>> editToDo(ToDoModel todo) async {
+ 
     try {
-      final todos = await localDataSource.getToDoList();
-      final updatedTodos = todos.map((model) {
-        if (model.id == todo.id) {
-          return ToDoModel(
-            id: todo.id,
-            title: todo.title,
-            description: todo.description,
-            isCompleted: todo.isCompleted,
-          );
-        }
-        return model;
-      }).toList();
-      await localDataSource.addToDo(updatedTodos);
+      // Convert ToDo (Domain Entity) to ToDoModel (Data Model)
+      final todoModel = ToDoModel.fromEntity(todo);
+      await localDataSource.editToDo(todoModel);
       return const Right(null);
     } on CacheException {
       return Left(CacheFailure());
@@ -63,9 +50,7 @@ class ToDoRepositoryImpl implements ToDoRepository {
   @override
   Future<Either<Failure, void>> deleteToDo(String id) async {
     try {
-      final todos = await localDataSource.getToDoList();
-      final filteredTodos = todos.where((model) => model.id != id).toList();
-      await localDataSource.addToDo(filteredTodos);
+      await localDataSource.deleteToDo(id);
       return const Right(null);
     } on CacheException {
       return Left(CacheFailure());
