@@ -5,7 +5,19 @@ import 'package:to_do_using_bloc/features/managetask/domain/repository/todo_repo
 import '../../../../../core/error/failures.dart';
 
 
-class GetToDoList extends UseCase<List<ToDoModel>, NoParams> {
+// class GetToDoList extends UseCase<List<ToDoModel>, NoParams> {
+//   final ToDoRepository repository;
+
+//   GetToDoList(this.repository);
+
+//   @override
+//   Future<Either<Failure, List<ToDoModel>>> call(NoParams params) async {
+//     return await repository.getToDoList();
+//   }
+// }
+
+
+class GetToDoList {
   final ToDoRepository repository;
 
   GetToDoList(this.repository);
@@ -14,6 +26,7 @@ class GetToDoList extends UseCase<List<ToDoModel>, NoParams> {
   Future<Either<Failure, List<ToDoModel>>> call(NoParams params) async {
     return await repository.getToDoList();
   }
+  
 }
 
 class NoParams {

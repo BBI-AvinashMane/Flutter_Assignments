@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/todo_bloc.dart';
-import '../bloc/todo_event.dart';
-import '../bloc/todo_state.dart';
+import 'package:to_do_using_bloc/features/managetask/presentation/bloc/todo_bloc.dart';
 import 'edit_todo_page.dart';
 
-class ToDoPage extends StatelessWidget {
+class ToDoPage extends StatefulWidget {
   const ToDoPage({super.key});
+
+  @override
+  State<ToDoPage> createState() => _ToDoPageState();
+}
+
+class _ToDoPageState extends State<ToDoPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ToDoBloc>().add(LoadToDos());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,32 +31,45 @@ class ToDoPage extends StatelessWidget {
           } else if (state is ToDoLoaded) {
             final todos = state.todos;
             return todos.isEmpty
-                ? const Center(
-                    child: Text('No tasks available. Add a new task!'),
-                  )
+                ? const Center(child: Text('No tasks available. Add a new task!'))
                 : ListView.builder(
                     itemCount: todos.length,
                     itemBuilder: (context, index) {
                       final todo = todos[index];
                       return Card(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
+                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         child: ListTile(
                           leading: Checkbox(
                             value: todo.isCompleted,
                             onChanged: (value) {
-                              BlocProvider.of<ToDoBloc>(context).add(
-                                EditToDoEvent(
-                                  id: todo.id,
-                                  title: todo.title,
-                                  description: todo.description,
-                                  isCompleted: value!,
-                                ),
-                              );
+                              context.read<ToDoBloc>().add(
+                                    EditToDoEvent(
+                                      id: todo.id,
+                                      title: todo.title,
+                                      description: todo.description,
+                                      isCompleted: value ?? false,
+                                    ),
+                                  );
                             },
                           ),
-                          title: Text(todo.title),
-                          subtitle: Text(todo.description),
+                          title: Text(
+                            todo.title,
+                            style: todo.isCompleted
+                                ? const TextStyle(
+                                    decoration: TextDecoration.lineThrough,
+                                    color: Colors.grey,
+                                  )
+                                : const TextStyle(),
+                          ),
+                          subtitle: Text(
+                            todo.description,
+                            style: todo.isCompleted
+                                ? const TextStyle(
+                                    decoration: TextDecoration.lineThrough,
+                                    color: Colors.grey,
+                                  )
+                                : const TextStyle(),
+                          ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -57,8 +79,7 @@ class ToDoPage extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          EditTodoPage(todo: todo),
+                                      builder: (context) => EditTodoPage(todo: todo),
                                     ),
                                   );
                                 },
@@ -66,8 +87,7 @@ class ToDoPage extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),
                                 onPressed: () {
-                                  _showDeleteConfirmationDialog(
-                                      context, todo.id);
+                                  _showDeleteConfirmationDialog(context, todo.id);
                                 },
                               ),
                             ],
@@ -116,18 +136,20 @@ class ToDoPage extends StatelessWidget {
           actions: [
             ElevatedButton(
               onPressed: () {
-                BlocProvider.of<ToDoBloc>(context).add(
-                  AddToDoEvent(
-                    title: titleController.text,
-                    description: descriptionController.text,
-                  ),
-                );
+                context.read<ToDoBloc>().add(
+                      AddToDoEvent(
+                        title: titleController.text,
+                        description: descriptionController.text,
+                      ),
+                    );
                 Navigator.pop(context);
               },
               child: const Text('Add'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text('Cancel'),
             ),
           ],
@@ -145,12 +167,14 @@ class ToDoPage extends StatelessWidget {
           content: const Text('Are you sure you want to delete this task?'),
           actions: [
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                BlocProvider.of<ToDoBloc>(context).add(DeleteToDoEvent(id: id));
+                context.read<ToDoBloc>().add(DeleteToDoEvent(id: id));
                 Navigator.pop(context);
               },
               child: const Text('Delete'),

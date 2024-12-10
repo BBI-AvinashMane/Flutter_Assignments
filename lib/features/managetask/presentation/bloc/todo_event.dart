@@ -1,3 +1,4 @@
+part of "todo_bloc.dart";
 abstract class ToDoEvent {}
 
 class LoadToDos extends ToDoEvent {}

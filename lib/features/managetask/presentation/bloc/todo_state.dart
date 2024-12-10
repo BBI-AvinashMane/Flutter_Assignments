@@ -1,4 +1,5 @@
-import 'package:to_do_using_bloc/features/managetask/data/model/todo_model.dart';
+
+part of "todo_bloc.dart";
 
 abstract class ToDoState {}
 
