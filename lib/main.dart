@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart' as http;
-import 'package:news_app/core/network/api_client.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/shared/shared_pref.dart';
 import 'core/theme/theme_manager.dart';
 import 'features/manage_news/data/data_sources/news_remote_data_source.dart';
@@ -12,6 +11,7 @@ import 'features/manage_news/presentation/pages/news_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName:"lib/.env");
 
   // final apiClient = ApiClient(http.Client());
   final sharedPrefs = SharedPrefs();
