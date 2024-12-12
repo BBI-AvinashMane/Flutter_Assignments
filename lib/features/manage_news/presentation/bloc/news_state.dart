@@ -1,5 +1,3 @@
-// features/news/presentation/bloc/news_state.dart
-
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/news_entity.dart';
 
