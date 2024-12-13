@@ -1,7 +1,34 @@
-import '../../domain/repository/news_repository.dart';
-import '../../domain/entities/news_entity.dart';
+// import '../data_sources/news_remote_data_source.dart';
+// import '../../domain/entities/news_entity.dart';
+// import '../../domain/repository/news_repository.dart';
+
+// class NewsRepositoryImpl implements NewsRepository {
+//   final NewsRemoteDataSource remoteDataSource;
+
+//   NewsRepositoryImpl( this.remoteDataSource);
+
+//   @override
+//   Future<List<NewsEntity>> fetchNews({
+//     required String query,
+//     String? language,
+//     required int page,
+//     required int pageSize,
+//   }) async {
+//     // Fetch news from the remote data source
+//     final newsModels = await remoteDataSource.fetchNews(
+//       query: query,
+//       language: language,
+//       page: page,
+//       pageSize: pageSize,
+//     );
+
+//     // Convert news models to entities
+//     return newsModels.map((model) => model.toEntity()).toList();
+//   }
+// }
 import '../data_sources/news_remote_data_source.dart';
-import '../model/news_model.dart';
+import '../../domain/entities/news_entity.dart';
+import '../../domain/repository/news_repository.dart';
 
 class NewsRepositoryImpl implements NewsRepository {
   final NewsRemoteDataSource remoteDataSource;
@@ -11,19 +38,17 @@ class NewsRepositoryImpl implements NewsRepository {
   @override
   Future<List<NewsEntity>> fetchNews({
     required String query,
-    String? category,
-    String? language,
-    String? country,
+    required String language,
+    required int page,
+    required int pageSize,
   }) async {
-    // Fetch data from the remote data source
-    final List<NewsModel> newsModels = await remoteDataSource.fetchNews(
+    final newsModels = await remoteDataSource.fetchNews(
       query: query,
-      category: category,
       language: language,
-      country: country,
+      page: page,
+      pageSize: pageSize,
     );
 
-    // Convert NewsModel to NewsEntity
     return newsModels.map((model) => model.toEntity()).toList();
   }
 }

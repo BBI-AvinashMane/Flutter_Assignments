@@ -9,17 +9,32 @@ abstract class NewsEvent extends Equatable {
 
 class LoadNewsEvent extends NewsEvent {
   final String query;
-  final String? category;
   final String? language;
-  final String? country;
+  final int page;
+  final int pageSize;
 
   const LoadNewsEvent({
     required this.query,
-    this.category,
-    this.language,
-    this.country,
+    this.language="en",
+    this.page = 1,
+    this.pageSize = 20,
   });
 
   @override
-  List<Object?> get props => [query, category, language, country];
+  List<Object?> get props => [query, language, page, pageSize];
+}
+
+class RefreshNewsEvent extends NewsEvent {
+  final String query;
+  final String? language;
+  final int pageSize;
+
+  const RefreshNewsEvent({
+    required this.query,
+    this.language="en",
+    this.pageSize = 20,
+  });
+
+  @override
+  List<Object?> get props => [query, language, pageSize];
 }

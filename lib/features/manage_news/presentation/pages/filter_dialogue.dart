@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class FilterDialog extends StatefulWidget {
   final Function({
-    required String? query,
+    required String query,
     required String? language,
   }) onApply;
 
@@ -14,7 +14,6 @@ class FilterDialog extends StatefulWidget {
 
 class _FilterDialogState extends State<FilterDialog> {
   String? _selectedLanguage;
-
   final Map<String, String> languageMap = {
     'en': 'English',
     'fr': 'French',
@@ -60,7 +59,7 @@ class _FilterDialogState extends State<FilterDialog> {
         ElevatedButton(
           onPressed: () {
             widget.onApply(
-              query: null,
+              query: 'cricket', 
               language: _selectedLanguage,
             );
             Navigator.pop(context);
