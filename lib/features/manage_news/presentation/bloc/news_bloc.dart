@@ -13,7 +13,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
   }
 
   Future<void> _onLoadNews(LoadNewsEvent event, Emitter<NewsState> emit) async {
-    print(" yeaah ${event.page} -${event.language} -${event.query}");
     final currentState = state;
     List<NewsEntity> oldNews = [];
     bool hasMoreData = true;
@@ -29,18 +28,35 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         page: event.page,
         pageSize: event.pageSize,
       );
-
-      hasMoreData = news.length >= event.pageSize;
-
-      emit(NewsLoaded(
-        news: [...oldNews, ...news],
-        hasMoreData: hasMoreData,
-      ));
+         hasMoreData = news.length >= event.pageSize;
+      if (news.isEmpty) {
+        if (event.page == 1) {
+          // No data even on the first page
+          emit(NewsError(message: 'No news available on this topic.'));
+        } else {
+          // No more data on subsequent pages
+          hasMoreData = false;
+          emit(NewsLoaded(news: oldNews, hasMoreData: hasMoreData));
+        }
+      } else {
+        emit(NewsLoaded(news: [...oldNews, ...news], hasMoreData: hasMoreData));
+      }
     } catch (error) {
-      print(error);
       emit(NewsError(message: 'Failed to fetch news: $error'));
     }
   }
+
+
+
+  //     emit(NewsLoaded(
+  //       news: [...oldNews, ...news],
+  //       hasMoreData: hasMoreData,
+  //     ));
+  //   } catch (error) {
+  //     print(error);
+  //     emit(NewsError(message: 'Failed to fetch news: $error'));
+  //   }
+  // }
 
   Future<void> _onRefreshNews(
       RefreshNewsEvent event, Emitter<NewsState> emit) async {

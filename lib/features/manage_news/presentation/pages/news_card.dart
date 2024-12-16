@@ -12,15 +12,20 @@ class NewsCard extends StatefulWidget {
 
 class _NewsCardState extends State<NewsCard> {
   bool _isExpanded = false;
+ 
 
   @override
   Widget build(BuildContext context) {
-    // Use theme-dependent color for "See More" text
+   
     final theme = Theme.of(context);
     final seeMoreColor = theme.brightness == Brightness.dark
-        ? theme.colorScheme.secondary // Use secondary color for dark mode
-        : theme.primaryColor;         // Use primary color for light mode
+        ? theme.colorScheme.secondary 
+        : theme.primaryColor;        
 
+    if (widget.article.title == "[Removed]" &&
+        widget.article.description == "[Removed]") {
+      return Container();
+    }
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
@@ -61,13 +66,13 @@ class _NewsCardState extends State<NewsCard> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _isExpanded = !_isExpanded; // Toggle expansion state
+                  _isExpanded = !_isExpanded; 
                 });
               },
               child: Text(
                 _isExpanded ? "See Less" : "See More",
                 style: TextStyle(
-                  color: seeMoreColor, // Adjust text color dynamically
+                  color: seeMoreColor, 
                   fontWeight: FontWeight.bold,
                 ),
               ),

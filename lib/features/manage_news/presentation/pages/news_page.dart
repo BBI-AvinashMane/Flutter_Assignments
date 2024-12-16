@@ -62,7 +62,8 @@ class _NewsPageState extends State<NewsPage> {
   }
 
 
-  void _onSearch() {
+  void 
+  _onSearch() {
     setState(() {
       _currentQuery = _searchController.text.trim().isEmpty
           ? 'cricket'
@@ -155,6 +156,7 @@ class _NewsPageState extends State<NewsPage> {
                       hasMoreData: state.hasMoreData,
                     );
                   } else if (state is NewsError) {
+                    const Center(child: Text('No news available'));
                     return Center(child: Text(state.message));
                   }
                   return const Center(child: Text('No news available'));
