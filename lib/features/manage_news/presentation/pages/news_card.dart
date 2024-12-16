@@ -1,31 +1,78 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/news_entity.dart';
 
-class NewsCard extends StatelessWidget {
+class NewsCard extends StatefulWidget {
   final NewsEntity article;
 
   const NewsCard({Key? key, required this.article}) : super(key: key);
 
   @override
+  _NewsCardState createState() => _NewsCardState();
+}
+
+class _NewsCardState extends State<NewsCard> {
+  bool _isExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
-    if (article.title == "[Removed]" && article.description == "[Removed]") {
-      return Container(); // Skip removed articles
-    }
+    // Use theme-dependent color for "See More" text
+    final theme = Theme.of(context);
+    final seeMoreColor = theme.brightness == Brightness.dark
+        ? theme.colorScheme.secondary // Use secondary color for dark mode
+        : theme.primaryColor;         // Use primary color for light mode
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: ListTile(
-        leading: article.imageUrl.isNotEmpty
-            ? Image.network(
-                article.imageUrl,
-                fit: BoxFit.cover,
-                width: 60,
-              )
-            : const Icon(Icons.image_not_supported),
-        title: Text(article.title),
-        subtitle: Text(
-          article.description,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.article.title,
+              style: theme.textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            widget.article.imageUrl.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      widget.article.imageUrl,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.broken_image, size: 50);
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink(),
+            const SizedBox(height: 8),
+            Text(
+              widget.article.description,
+              maxLines: _isExpanded ? null : 3,
+              overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isExpanded = !_isExpanded; // Toggle expansion state
+                });
+              },
+              child: Text(
+                _isExpanded ? "See Less" : "See More",
+                style: TextStyle(
+                  color: seeMoreColor, // Adjust text color dynamically
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

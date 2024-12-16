@@ -22,9 +22,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       oldNews = currentState.news;
     }
 
-    try {
-       print(" yeaah ${event.page} -${event.language} -${event.query}");
-       
+    try { 
       final news = await getNews(
         query: event.query,
         language: event.language.toString(),
@@ -32,7 +30,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
         pageSize: event.pageSize,
       );
 
-      // print("response in bloc $news");
       hasMoreData = news.length >= event.pageSize;
 
       emit(NewsLoaded(
@@ -41,7 +38,6 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
       ));
     } catch (error) {
       print(error);
-      print("samual");
       emit(NewsError(message: 'Failed to fetch news: $error'));
     }
   }
@@ -60,7 +56,7 @@ class NewsBloc extends Bloc<NewsEvent, NewsState> {
 
       emit(NewsLoaded(
         news: news,
-        hasMoreData: news.length >= event.pageSize,
+        hasMoreData: news.length == event.pageSize,
       ));
     } catch (error) {
       emit(NewsError(message: 'Failed to refresh news: $error'));
