@@ -9,7 +9,6 @@ import 'filter_dialogue.dart';
 
 class NewsPage extends StatefulWidget {
   final ThemeManager themeManager;
- 
 
   const NewsPage({Key? key, required this.themeManager}) : super(key: key);
 
@@ -25,7 +24,9 @@ class _NewsPageState extends State<NewsPage> {
   bool _isFetching = false;
 
   void _fetchNews() {
-    context.read<NewsBloc>().add(LoadNewsEvent(query: _currentQuery, page: _currentPage));
+    context
+        .read<NewsBloc>()
+        .add(LoadNewsEvent(query: _currentQuery, page: _currentPage));
   }
 
   void _loadMoreNews() {
@@ -34,19 +35,20 @@ class _NewsPageState extends State<NewsPage> {
     setState(() {
       _isFetching = true;
     });
-    context.read<NewsBloc>().add(LoadNewsEvent(query: _currentQuery, page: ++_currentPage));
+    context
+        .read<NewsBloc>()
+        .add(LoadNewsEvent(query: _currentQuery, page: ++_currentPage));
   }
-
 
   void _refreshNews() async {
     setState(() {
       _currentPage = 1;
       _isFetching = false;
     });
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate a slight delay
+    await Future.delayed(
+        const Duration(milliseconds: 500)); // Simulate a slight delay
     context.read<NewsBloc>().add(RefreshNewsEvent(query: _currentQuery));
   }
-
 
   @override
   void initState() {
@@ -55,26 +57,48 @@ class _NewsPageState extends State<NewsPage> {
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent && !_isFetching) {
+              _scrollController.position.maxScrollExtent &&
+          !_isFetching) {
         _loadMoreNews();
       }
     });
   }
 
+  // void _onSearch() {
+  //   setState(() {
+  //     _currentQuery = _searchController.text.trim().isEmpty
+  //         ? 'cricket'
+  //         : _searchController.text.trim();
+  //     _currentPage = 1;
+  //     _isFetching = false;
+  //   });
+  //   _fetchNews();
+  //   _refreshNews();
+  // }
+  void _onSearch() {
+    // Trim and sanitize the search query
+    final query = _searchController.text.trim();
 
-  void 
-  _onSearch() {
     setState(() {
-      _currentQuery = _searchController.text.trim().isEmpty
-          ? 'cricket'
-          : _searchController.text.trim();
+      // If the query is empty, default to 'cricket'
+      _currentQuery = query.isEmpty ? 'cricket' : query;
+
+      // Reset pagination and fetching flags
       _currentPage = 1;
       _isFetching = false;
     });
-    _fetchNews();
-    _refreshNews();
+
+    // Trigger the fetch and refresh methods
+    if (query.isNotEmpty || _currentQuery == 'cricket') {
+      _fetchNews(); // Fetch news for the updated query
+      _refreshNews(); // Refresh news to handle state updates
+    } else {
+      // If query is empty, optionally show a message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a search term')),
+      );
+    }
   }
-  
 
   void _openFilterDialog(BuildContext context) {
     showDialog(
@@ -85,16 +109,17 @@ class _NewsPageState extends State<NewsPage> {
           required String? language,
         }) {
           context.read<NewsBloc>().add(
-            LoadNewsEvent(
-              query: _currentQuery,
-              language: language,
-            ),
-          );
+                LoadNewsEvent(
+                  query: _currentQuery,
+                  language: language,
+                ),
+              );
         },
       ),
     );
   }
- void _scrollToTop() {
+
+  void _scrollToTop() {
     _scrollController.animateTo(
       0,
       duration: const Duration(milliseconds: 500),
@@ -131,7 +156,7 @@ class _NewsPageState extends State<NewsPage> {
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     _searchController.clear();
-                     _onSearch();
+                    _onSearch();
                   },
                 ),
                 border: OutlineInputBorder(
@@ -140,23 +165,27 @@ class _NewsPageState extends State<NewsPage> {
               ),
               onSubmitted: (_) => _onSearch(),
             ),
-          ), 
+          ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async => _refreshNews(),
               child: BlocBuilder<NewsBloc, NewsState>(
                 builder: (context, state) {
-                  if (state is NewsLoading && state.isRefreshing) {
+                  if (state is NewsLoading ||
+                      (state is NewsLoading && state.isRefreshing)) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state is NewsLoaded) {
                     _isFetching = false;
+                    if (state.news.isEmpty) {
+                      return const Center(child: Text('No news available'));
+                    }
                     return NewsList(
                       news: state.news,
                       scrollController: _scrollController,
                       hasMoreData: state.hasMoreData,
                     );
                   } else if (state is NewsError) {
-                    const Center(child: Text('No news available'));
+                    //const Center(child: Text('No news available'));
                     return Center(child: Text(state.message));
                   }
                   return const Center(child: Text('No news available'));
@@ -165,20 +194,21 @@ class _NewsPageState extends State<NewsPage> {
             ),
           ),
         ],
-      ), floatingActionButton: _scrollController.hasClients &&
-              _scrollController.offset > 300
-          ? FloatingActionButton(
-              onPressed: _scrollToTop,
-              child: const Icon(Icons.arrow_upward),
-            )
-          : null,
+      ),
+      floatingActionButton:
+          _scrollController.hasClients && _scrollController.offset > 300
+              ? FloatingActionButton(
+                  onPressed: _scrollToTop,
+                  child: const Icon(Icons.arrow_upward),
+                )
+              : null,
     );
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-     _scrollController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }
