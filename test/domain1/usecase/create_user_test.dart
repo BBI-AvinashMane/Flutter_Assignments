@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app/features/manage_news/domain/entities/news_entity.dart';
 import 'package:news_app/features/manage_news/domain/repository/news_repository.dart';

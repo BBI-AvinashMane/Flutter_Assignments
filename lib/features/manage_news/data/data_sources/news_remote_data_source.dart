@@ -52,6 +52,7 @@
 //   }
 // }
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../model/news_model.dart';
@@ -68,7 +69,9 @@ abstract class NewsRemoteDataSource {
 class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
   final String _baseUrl = 'https://newsapi.org/v2/everything';
   final String? _apiKey = dotenv.env['API_KEY'];
+  final http.Client  client;
 
+  NewsRemoteDataSourceImpl(this.client);
   @override
   Future<List<NewsModel>> fetchNews({
     required String query,
@@ -88,7 +91,7 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
     );
 
     try {
-      final response = await http.get(url);
+      final response = await client.get(url);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

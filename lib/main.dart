@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,10 +9,11 @@ import 'features/manage_news/presentation/bloc/news_bloc.dart';
 import 'features/manage_news/domain/usecases/get_news.dart';
 import 'features/manage_news/data/repository/news_repository_impl.dart';
 import 'features/manage_news/data/data_sources/news_remote_data_source.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
- await dotenv.load(fileName: "lib/.env");
+ await dotenv.load(fileName: ".env");
   // Load the saved theme
   final theme = await ThemeManager.loadTheme();
   final themeManager = ThemeManager(theme);
@@ -34,7 +37,7 @@ class MyApp extends StatelessWidget {
           home: BlocProvider(
             create: (_) => NewsBloc(
               GetNews(
-                NewsRepositoryImpl(NewsRemoteDataSourceImpl()),
+                NewsRepositoryImpl(NewsRemoteDataSourceImpl(http.Client())),
               ),
             ),
             child: NewsPage(themeManager: themeManager),
