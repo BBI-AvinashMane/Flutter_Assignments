@@ -28,3 +28,10 @@ class AuthenticateError extends AuthenticateState {
   @override
   List<Object?> get props => [message];
 }
+
+class Unauthenticated extends AuthenticateState {}
+
+class Authenticated extends AuthenticateState {
+  final String userId;
+  const Authenticated(this.userId);
+}
