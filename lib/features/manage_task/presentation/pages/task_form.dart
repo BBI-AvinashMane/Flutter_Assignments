@@ -1,31 +1,96 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_manager_firebase/features/manage_task/domain/entities/task_entity.dart';
+import 'dart:async';
 
 class TaskForm extends StatefulWidget {
-  final TaskEntity? task;
   final String userId;
+  final TaskEntity? task;
 
-  const TaskForm({this.task, required this.userId, Key? key}) : super(key: key);
+  const TaskForm({Key? key, required this.userId, this.task}) : super(key: key);
 
   @override
-  State<TaskForm> createState() => _TaskFormState();
+  _TaskFormState createState() => _TaskFormState();
 }
 
-class _TaskFormState extends State<TaskForm> {
+class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _dueDate;
-  String _priority = "Medium";
+  String _priority = 'Medium';
+
+  late AnimationController _animationController;
+  late Animation<Offset> _animation;
+  bool _isShaking = false;
 
   @override
   void initState() {
     super.initState();
+
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
-      _descriptionController.text = widget.task!.description;
+      _descriptionController.text = widget.task!.description ?? '';
       _dueDate = widget.task!.dueDate;
-      _priority = widget.task!.priority;
+      _priority = widget.task!.priority ?? 'Medium';
+    }
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _animation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0.1, 0),
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.elasticIn,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _triggerShakeAnimation() {
+    setState(() {
+      _isShaking = true;
+    });
+    _animationController.forward().then((_) {
+      _animationController.reverse().then((_) {
+        setState(() {
+          _isShaking = false;
+        });
+      });
+    });
+  }
+
+  Future<void> _submitTask() async {
+    if (_formKey.currentState!.validate()) {
+      if (_dueDate == null || _dueDate!.isBefore(DateTime.now())) {
+        _triggerShakeAnimation();
+        return;
+      }
+
+      Navigator.pop(
+        context,
+        TaskEntity(
+          id: widget.task?.id ?? '',
+          title: _titleController.text,
+          description: _descriptionController.text,
+          dueDate: _dueDate!,
+          priority: _priority,
+          userId: widget.userId,
+        ),
+      );
+    } else {
+      _triggerShakeAnimation();
     }
   }
 
@@ -39,61 +104,75 @@ class _TaskFormState extends State<TaskForm> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: "Title"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Title is required";
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: "Description"),
-              ),
-              TextFormField(
-                readOnly: true,
-                decoration: const InputDecoration(labelText: "Due Date"),
-                onTap: () async {
-                  final selectedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _dueDate ?? DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2100),
-                  );
-                  if (selectedDate != null) {
+          child: SlideTransition(
+            position: _isShaking ? _animation : AlwaysStoppedAnimation(Offset.zero),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(labelText: 'Title'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Title cannot be empty';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text("Due Date: "),
+                    TextButton(
+                      onPressed: () async {
+                        final selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2100),
+                        );
+                        if (selectedDate != null) {
+                          setState(() {
+                            _dueDate = selectedDate;
+                          });
+                        }
+                      },
+                      child: Text(
+                        _dueDate == null
+                            ? "Select Date"
+                            : _dueDate!.toLocal().toString().split(' ')[0],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _priority,
+                  items: ['High', 'Medium', 'Low']
+                      .map((priority) => DropdownMenuItem(
+                            value: priority,
+                            child: Text(priority),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
                     setState(() {
-                      _dueDate = selectedDate;
+                      _priority = value ?? 'Medium';
                     });
-                  }
-                },
-              ),
-              DropdownButtonFormField<String>(
-                value: _priority,
-                items: ["High", "Medium", "Low"]
-                    .map((priority) => DropdownMenuItem(value: priority, child: Text(priority)))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _priority = value!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Dispatch Add or Update event to Bloc
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text(widget.task == null ? "Add Task" : "Update Task"),
-              ),
-            ],
+                  },
+                  decoration: const InputDecoration(labelText: 'Priority'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _submitTask,
+                  child: Text(widget.task == null ? "Add Task" : "Update Task"),
+                ),
+              ],
+            ),
           ),
         ),
       ),

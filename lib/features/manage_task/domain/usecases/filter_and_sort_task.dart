@@ -1,10 +1,10 @@
 import '../entities/task_entity.dart';
 
 class FilterAndSortTasks {
-  List<TaskEntity> call({
-    required List<TaskEntity> tasks,
-    bool filterByPriority = false,
-    bool filterByDueDate = false,
+  List<TaskEntity> call(
+    List<TaskEntity> tasks, {
+    required bool filterByPriority,
+    required bool filterByDueDate,
     String? priorityLevel,
   }) {
     List<TaskEntity> filteredTasks = tasks;

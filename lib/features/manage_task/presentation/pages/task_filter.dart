@@ -1,32 +1,91 @@
-import 'package:task_manager_firebase/features/manage_task/domain/entities/task_entity.dart';
+import 'package:flutter/material.dart';
 
-class FilterAndSortTasks {
-  List<TaskEntity> call({
-    required List<TaskEntity> tasks,
-    required bool filterByPriority,
-    required bool filterByDueDate,
-    String? priorityLevel,
-  }) {
-    List<TaskEntity> filteredTasks = tasks;
+class FilterAndSortTasksPage extends StatefulWidget {
+  final String userId;
 
-    // Filter by priority
-    if (filterByPriority && priorityLevel != null) {
-      filteredTasks = filteredTasks.where((task) => task.priority == priorityLevel).toList();
-    }
+  const FilterAndSortTasksPage({required this.userId, Key? key}) : super(key: key);
 
-    // Sort by due date, then alphabetically
-    filteredTasks.sort((a, b) {
-      if (filterByDueDate) {
-        final dueDateComparison = a.dueDate.compareTo(b.dueDate);
-        if (dueDateComparison == 0) {
-          return a.title.compareTo(b.title);
-        }
-        return dueDateComparison;
-      } else {
-        return a.title.compareTo(b.title);
-      }
-    });
+  @override
+  _FilterAndSortTasksPageState createState() => _FilterAndSortTasksPageState();
+}
 
-    return filteredTasks;
+class _FilterAndSortTasksPageState extends State<FilterAndSortTasksPage> {
+  bool _filterByPriority = false;
+  bool _filterByDueDate = false;
+  String? _selectedPriorityLevel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Filter and Sort Tasks"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CheckboxListTile(
+              title: const Text("Filter by Priority"),
+              value: _filterByPriority,
+              onChanged: (value) {
+                setState(() {
+                  _filterByPriority = value ?? false;
+                  if (!_filterByPriority) _selectedPriorityLevel = null; // Reset priority level
+                });
+              },
+            ),
+            if (_filterByPriority)
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: "Priority Level"),
+                value: _selectedPriorityLevel,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedPriorityLevel = value;
+                  });
+                },
+                items: const [
+                  DropdownMenuItem(value: "High", child: Text("High")),
+                  DropdownMenuItem(value: "Medium", child: Text("Medium")),
+                  DropdownMenuItem(value: "Low", child: Text("Low")),
+                ],
+              ),
+            const SizedBox(height: 20),
+            CheckboxListTile(
+              title: const Text("Sort by Due Date"),
+              value: _filterByDueDate,
+              onChanged: (value) {
+                setState(() {
+                  _filterByDueDate = value ?? false;
+                });
+              },
+            ),
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Go back without applying filters
+                  },
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Pass filter and sort options back to the task list
+                    Navigator.pop(context, {
+                      'filterByPriority': _filterByPriority,
+                      'priorityLevel': _selectedPriorityLevel,
+                      'filterByDueDate': _filterByDueDate,
+                    });
+                  },
+                  child: const Text("Apply"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

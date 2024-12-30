@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:task_manager_firebase/core/error/failures.dart';
 import 'package:task_manager_firebase/core/usecases/usecase.dart';
-
 import '../repositories/authenticate_repository.dart';
 
 class LoginUser implements UseCase<bool, String> {
@@ -10,7 +9,7 @@ class LoginUser implements UseCase<bool, String> {
   LoginUser(this.repository);
 
   @override
-  Future<Either<Failure, bool>> call(String params) async {
-    return await repository.loginUser(params);
+  Future<Either<Failure, bool>> call(String userId) async {
+    return repository.loginUser(userId);
   }
 }

@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:task_manager_firebase/core/error/failures.dart';
+import '../../../../core/error/failures.dart';
 import '../entities/task_entity.dart';
 
 abstract class TaskRepository {

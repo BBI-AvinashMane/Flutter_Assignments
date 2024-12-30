@@ -1,36 +1,14 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:task_manager_firebase/core/error/exceptions.dart';
-
 
 abstract class AuthenticateRemoteDataSource {
+  /// Registers a new user and returns the generated user ID.
   Future<String> registerUser();
+
+  /// Checks if a user exists in the database.
   Future<bool> loginUser(String userId);
 }
 
-// class AuthenticateRemoteDataSourceImpl implements AuthenticateRemoteDataSource {
-//   final FirebaseDatabase database;
 
-//   AuthenticateRemoteDataSourceImpl(this.database);
-
-//   @override
-//   Future<String> registerUser() async {
-//     try {
-//       final userId = database.ref().push().key!;
-//       await database.ref('users/$userId').set({
-//         'created_at': DateTime.now().toIso8601String(),
-//       });
-//       return userId;
-//     } catch (e) {
-//       throw ServerException();
-//     }
-//   }
-
-//   @override
-//   Future<bool> loginUser(String userId) async {
-//     final userSnapshot = await database.ref('users/$userId').get();
-//     return userSnapshot.exists;
-//   }
-// }
 class AuthenticateRemoteDataSourceImpl implements AuthenticateRemoteDataSource {
   final FirebaseDatabase database;
 
@@ -38,25 +16,31 @@ class AuthenticateRemoteDataSourceImpl implements AuthenticateRemoteDataSource {
 
   @override
   Future<String> registerUser() async {
-    try {
-      print("Attempting to generate user ID...");
-      final userId = database.ref().push().key!;
-      print("Generated user ID: $userId");
+    final transactionResult = await database.ref("user_count").runTransaction((currentValue) {
+      if (currentValue == null) {
+        return Transaction.success(1);
+      }
+      if (currentValue is int) {
+        return Transaction.success(currentValue + 1);
+      }
+      return Transaction.abort();
+    });
 
-      print("Writing user ID to Firebase...");
-      await database.ref('users/$userId').set({
-        'created_at': DateTime.now().toIso8601String(),
+    if (transactionResult.committed && transactionResult.snapshot.value != null) {
+      final userId = "user_${transactionResult.snapshot.value}";
+      await database.ref("users/$userId").set({
+        "userId": userId,
+        "registeredAt": DateTime.now().toIso8601String(),
       });
-      print("User ID written successfully!");
       return userId;
-    } catch (e) {
-      print("Registration failed: $e");
-      throw ServerException();
+    } else {
+      throw Exception("Failed to register user");
     }
   }
-   @override
+
+  @override
   Future<bool> loginUser(String userId) async {
-    final userSnapshot = await database.ref('users/$userId').get();
-    return userSnapshot.exists;
+    final snapshot = await database.ref("users/$userId").get();
+    return snapshot.exists;
   }
 }

@@ -1,11 +1,44 @@
-import 'package:equatable/equatable.dart';
+// import 'package:equatable/equatable.dart';
 
-abstract class AuthenticateState extends Equatable {
-  const AuthenticateState();
+// abstract class AuthenticateState extends Equatable {
+//   const AuthenticateState();
 
-  @override
-  List<Object?> get props => [];
-}
+//   @override
+//   List<Object?> get props => [];
+// }
+
+// class AuthenticateInitial extends AuthenticateState {}
+
+// class AuthenticateLoading extends AuthenticateState {}
+
+// class AuthenticateSuccess extends AuthenticateState {
+//   final String userId;
+
+//   const AuthenticateSuccess(this.userId);
+
+//   @override
+//   List<Object?> get props => [userId];
+// }
+
+// class AuthenticateError extends AuthenticateState {
+//   final String message;
+
+//   const AuthenticateError(this.message);
+
+//   @override
+//   List<Object?> get props => [message];
+// }
+
+// class Unauthenticated extends AuthenticateState {}
+
+// class Authenticated extends AuthenticateState {
+//   final String userId;
+//   const Authenticated(this.userId);
+// }
+
+part of 'authenticate_bloc.dart';
+
+abstract class AuthenticateState {}
 
 class AuthenticateInitial extends AuthenticateState {}
 
@@ -14,24 +47,13 @@ class AuthenticateLoading extends AuthenticateState {}
 class AuthenticateSuccess extends AuthenticateState {
   final String userId;
 
-  const AuthenticateSuccess(this.userId);
-
-  @override
-  List<Object?> get props => [userId];
+  AuthenticateSuccess({required this.userId});
 }
 
 class AuthenticateError extends AuthenticateState {
   final String message;
 
-  const AuthenticateError(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  AuthenticateError(this.message);
 }
 
 class Unauthenticated extends AuthenticateState {}
-
-class Authenticated extends AuthenticateState {
-  final String userId;
-  const Authenticated(this.userId);
-}
