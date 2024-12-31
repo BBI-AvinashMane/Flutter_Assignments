@@ -15,11 +15,10 @@ class MenuDrawer extends StatelessWidget {
         children: [
           UserAccountsDrawerHeader(
             accountName: const Text("Welcome"),
-            accountEmail: Text("User ID: $userId"),
+            accountEmail: Text(userId),
             currentAccountPicture: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor,
               child: Text(
-                _extractUserNumber(userId),
+                userId.split("_")[1], // Display user number (e.g., 1 for user_1)
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
@@ -30,7 +29,12 @@ class MenuDrawer extends StatelessWidget {
             onTap: () async {
               final shouldLogout = await _showLogoutDialog(context);
               if (shouldLogout) {
-                BlocProvider.of<AuthenticateBloc>(context).add(LogoutEvent());
+                BlocProvider.of<AuthenticateBloc>(context).add(LogoutEvent(context));//LogoutEvent(context) here context added
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/',
+                  (route) => false, // Clear all previous routes
+                );
               }
             },
           ),
@@ -39,11 +43,7 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  String _extractUserNumber(String userId) {
-    final parts = userId.split("_");
-    return parts.length > 1 ? parts[1] : userId;
-  }
-
+  /// Display a confirmation dialog for logout
   Future<bool> _showLogoutDialog(BuildContext context) async {
     return await showDialog<bool>(
           context: context,

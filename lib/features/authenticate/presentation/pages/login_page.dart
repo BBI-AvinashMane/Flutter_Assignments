@@ -37,9 +37,6 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _userIdController,
                 keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.done,
-                // inputFormatters: [
-                //   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z_0-9]')), // Allow letters, numbers, and underscores
-                // ],
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'User ID',

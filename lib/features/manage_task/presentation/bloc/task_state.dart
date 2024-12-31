@@ -11,13 +11,15 @@ abstract class TaskState extends Equatable {
 class TaskLoading extends TaskState {}
 
 class TaskLoaded extends TaskState {
-  final List<TaskEntity> tasks;
+  final List<TaskEntity> tasks; // Filtered tasks
+  final List<TaskEntity> originalTasks; // Unfiltered list of tasks
   final bool filterByPriority;
   final bool filterByDueDate;
   final String? priorityLevel;
 
   const TaskLoaded({
     required this.tasks,
+    required this.originalTasks,
     required this.filterByPriority,
     required this.filterByDueDate,
     this.priorityLevel,
@@ -25,7 +27,7 @@ class TaskLoaded extends TaskState {
 
   @override
   List<Object?> get props =>
-      [tasks, filterByPriority, filterByDueDate, priorityLevel];
+      [tasks, originalTasks, filterByPriority, filterByDueDate, priorityLevel];
 }
 
 class TaskError extends TaskState {

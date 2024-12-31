@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_bloc.dart';
+import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_event.dart';
 import 'package:task_manager_firebase/features/manage_task/domain/entities/task_entity.dart';
 import 'dart:async';
 
@@ -32,7 +34,7 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description ?? '';
       _dueDate = widget.task!.dueDate;
-      _priority = widget.task!.priority ?? 'Medium';
+      _priority = widget.task!.priority;
     }
 
     _animationController = AnimationController(
@@ -71,24 +73,32 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
     });
   }
 
-  Future<void> _submitTask() async {
+  void _submitTask(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       if (_dueDate == null || _dueDate!.isBefore(DateTime.now())) {
         _triggerShakeAnimation();
         return;
       }
 
-      Navigator.pop(
-        context,
-        TaskEntity(
-          id: widget.task?.id ?? '',
-          title: _titleController.text,
-          description: _descriptionController.text,
-          dueDate: _dueDate!,
-          priority: _priority,
-          userId: widget.userId,
-        ),
+      final task = TaskEntity(
+        id: widget.task?.id ?? '',
+        title: _titleController.text,
+        description: _descriptionController.text,
+        dueDate: _dueDate!,
+        priority: _priority,
+        userId: widget.userId,
       );
+
+      if (widget.task == null) {
+        // Dispatch AddTaskEvent if it's a new task
+        print("ahdahwiawhd");
+        BlocProvider.of<TaskBloc>(context).add(AddTaskEvent(task, widget.userId));
+      } else {
+        // Dispatch UpdateTaskEvent if it's an update
+        BlocProvider.of<TaskBloc>(context).add(UpdateTaskEvent(task, widget.userId));
+      }
+
+      Navigator.pop(context);
     } else {
       _triggerShakeAnimation();
     }
@@ -168,7 +178,7 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: _submitTask,
+                  onPressed: () => _submitTask(context),
                   child: Text(widget.task == null ? "Add Task" : "Update Task"),
                 ),
               ],

@@ -47,19 +47,23 @@ class DeleteTaskEvent extends TaskEvent {
   List<Object?> get props => [taskId, userId];
 }
 
-class ApplyFilterEvent extends TaskEvent {
-  final bool filterByPriority;
+class ApplyAdvancedFilterEvent extends TaskEvent {
+  final bool filterByPriorityOrder;
   final bool filterByDueDate;
-  final String? priorityLevel;
+  final String? specificPriority;
 
-  const ApplyFilterEvent({
-    required this.filterByPriority,
+  const ApplyAdvancedFilterEvent({
+    required this.filterByPriorityOrder,
     required this.filterByDueDate,
-    this.priorityLevel,
+    this.specificPriority,
   });
 
   @override
-  List<Object?> get props => [filterByPriority, filterByDueDate, priorityLevel];
+  List<Object?> get props => [
+        filterByPriorityOrder,
+        filterByDueDate,
+        specificPriority,
+      ];
 }
 
 class RestoreFiltersEvent extends TaskEvent {}

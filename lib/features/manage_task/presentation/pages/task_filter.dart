@@ -1,24 +1,55 @@
 import 'package:flutter/material.dart';
 
-class FilterAndSortTasksPage extends StatefulWidget {
+class TaskFilterPage extends StatefulWidget {
   final String userId;
+  final String? priorityLevel; // Add this parameter to the constructor
 
-  const FilterAndSortTasksPage({required this.userId, Key? key}) : super(key: key);
+  const TaskFilterPage({Key? key, required this.userId, this.priorityLevel}) : super(key: key);
 
   @override
-  _FilterAndSortTasksPageState createState() => _FilterAndSortTasksPageState();
+  _TaskFilterPageState createState() => _TaskFilterPageState();
 }
 
-class _FilterAndSortTasksPageState extends State<FilterAndSortTasksPage> {
-  bool _filterByPriority = false;
+class _TaskFilterPageState extends State<TaskFilterPage> {
+  bool _filterByPriorityOrder = false;
   bool _filterByDueDate = false;
-  String? _selectedPriorityLevel;
+  String? _specificPriority;
+
+  @override
+  void initState() {
+    super.initState();
+    _specificPriority = widget.priorityLevel; // Use priorityLevel if provided
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _filterByPriorityOrder = false;
+      _filterByDueDate = false;
+      _specificPriority = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Filter and Sort Tasks"),
+        title: const Text("Filter Tasks"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _resetFilters(); // Reset filters visually
+              Navigator.pop(context, {
+                'filterByPriorityOrder': false,
+                'filterByDueDate': false,
+                'specificPriority': null,
+              });
+            },
+            child: const Text(
+              "Reset",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -26,31 +57,31 @@ class _FilterAndSortTasksPageState extends State<FilterAndSortTasksPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CheckboxListTile(
-              title: const Text("Filter by Priority"),
-              value: _filterByPriority,
+              title: const Text("Priority Order (High > Medium > Low)"),
+              value: _filterByPriorityOrder,
               onChanged: (value) {
                 setState(() {
-                  _filterByPriority = value ?? false;
-                  if (!_filterByPriority) _selectedPriorityLevel = null; // Reset priority level
+                  _filterByPriorityOrder = value ?? false;
                 });
               },
             ),
-            if (_filterByPriority)
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Priority Level"),
-                value: _selectedPriorityLevel,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedPriorityLevel = value;
-                  });
-                },
-                items: const [
-                  DropdownMenuItem(value: "High", child: Text("High")),
-                  DropdownMenuItem(value: "Medium", child: Text("Medium")),
-                  DropdownMenuItem(value: "Low", child: Text("Low")),
-                ],
-              ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _specificPriority,
+              items: ['High', 'Medium', 'Low']
+                  .map((priority) => DropdownMenuItem(
+                        value: priority,
+                        child: Text(priority),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _specificPriority = value;
+                });
+              },
+              decoration: const InputDecoration(labelText: 'Specific Priority'),
+            ),
+            const SizedBox(height: 16),
             CheckboxListTile(
               title: const Text("Sort by Due Date"),
               value: _filterByDueDate,
@@ -60,28 +91,17 @@ class _FilterAndSortTasksPageState extends State<FilterAndSortTasksPage> {
                 });
               },
             ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Go back without applying filters
-                  },
-                  child: const Text("Cancel"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Pass filter and sort options back to the task list
-                    Navigator.pop(context, {
-                      'filterByPriority': _filterByPriority,
-                      'priorityLevel': _selectedPriorityLevel,
-                      'filterByDueDate': _filterByDueDate,
-                    });
-                  },
-                  child: const Text("Apply"),
-                ),
-              ],
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Apply filters and pass back to TaskList
+                Navigator.pop(context, {
+                  'filterByPriorityOrder': _filterByPriorityOrder,
+                  'filterByDueDate': _filterByDueDate,
+                  'specificPriority': _specificPriority,
+                });
+              },
+              child: const Text("Apply Filters"),
             ),
           ],
         ),

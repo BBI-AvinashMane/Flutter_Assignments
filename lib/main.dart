@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/features/authenticate/presentation/pages/login_page.dart';
+import 'package:task_manager_firebase/features/manage_task/domain/usecases/filter_and_sort_task.dart';
 import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_bloc.dart';
 import 'injection_container.dart' as di;
 import 'features/authenticate/presentation/bloc/authenticate_bloc.dart';
@@ -40,34 +42,45 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Route? _onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case '/':
-        return MaterialPageRoute(
-          builder: (_) => const AuthenticatePage(),
-        );
-      case '/tasks':
-        final userId = settings.arguments as String;
-        return MaterialPageRoute(
-          builder: (_) => TaskList(userId: userId),
-        );
-      case '/task_form':
-        final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(
-          builder: (_) => TaskForm(
-            userId: args['userId'] as String,
-            task: args['task'], // Pass TaskEntity or null
-          ),
-        );
-      case '/task_filter':
-        final args = settings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(
-          builder: (_) => FilterAndSortTasksPage(
-            userId: args['userId'] as String,
-          ),
-        );
-      default:
-        return null;
-    }
+ Route? _onGenerateRoute(RouteSettings settings) {
+  switch (settings.name) {
+    case '/':
+      return MaterialPageRoute(
+        builder: (_) => const AuthenticatePage(),
+      );
+    case '/login':
+      return MaterialPageRoute(
+        builder: (_) => const LoginPage(),
+      );
+    case '/tasks':
+      final userId = settings.arguments as String;
+      return MaterialPageRoute(
+        builder: (_) => TaskList(userId: userId),
+      );
+    case '/task_form':
+      final args = settings.arguments as Map<String, dynamic>;
+      return MaterialPageRoute(
+        builder: (_) => TaskForm(
+          userId: args['userId'] as String,
+          task: args['task'], // Pass TaskEntity or null
+        ),
+      );
+    case '/task_filter':
+      final args = settings.arguments as Map<String, dynamic>;
+      return MaterialPageRoute(
+        builder: (_) => TaskFilterPage(
+          userId: args['userId'] as String,
+          priorityLevel: args['priorityLevel'] as String?, // Optional priority level
+        ),
+      );
+    default:
+      return MaterialPageRoute(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: const Text("404 - Page Not Found")),
+          body: const Center(child: Text("Page not found.")),
+        ),
+      );
   }
+}
+
 }
