@@ -75,21 +75,6 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent, AuthenticateState> {
     );
   }
 
-  /// Handles user logout
-  // Future<void> _onLogout(
-  //   LogoutEvent event,
-  //   Emitter<AuthenticateState> emit,
-  // ) async {
-  //   emit(AuthenticateLoading());
-  //   final result = await logoutUser.call(NoParams());
-  //   result.fold(
-  //     (failure) => emit(AuthenticateError(failure.message)),
-  //     (_) {
-  //       preferences.remove('userId'); // Clear persisted user ID
-  //       emit(Unauthenticated());
-  //     },
-  //   );
-  // }
   Future<void> _onLogout(
   LogoutEvent event,
   Emitter<AuthenticateState> emit,

@@ -1,49 +1,62 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
-import 'package:task_manager_firebase/features/authenticate/domain/entities/authenticate_entity.dart';
-import 'package:task_manager_firebase/features/authenticate/domain/repositories/authenticate_repository.dart';
-import 'package:task_manager_firebase/features/authenticate/domain/usecases/login_user.dart';
 import 'package:task_manager_firebase/core/error/failures.dart';
+import 'package:task_manager_firebase/features/authenticate/domain/usecases/login_user.dart';
+import 'package:task_manager_firebase/features/authenticate/domain/repositories/authenticate_repository.dart';
 
-class MockAuthenticateRepository extends Mock
-    implements AuthenticateRepository {}
+class MockAuthenticateRepository extends Mock implements AuthenticateRepository {}
 
 void main() {
-  late MockAuthenticateRepository mockAuthenticateRepository;
   late LoginUser useCase;
+  late MockAuthenticateRepository mockRepository;
 
   setUp(() {
-    mockAuthenticateRepository = MockAuthenticateRepository();
-    useCase = LoginUser(repository: mockAuthenticateRepository);
+    mockRepository = MockAuthenticateRepository();
+    useCase = LoginUser(mockRepository);
   });
 
-  const userId = 'user_1';
-  final user = AuthenticateEntity(userId: userId);
+  const tUserId = 'user_1';
 
-  test('should return user when login is successful', () async {
-    // Arrange
-    when(() => mockAuthenticateRepository.loginUser(userId))
-        .thenAnswer((_) async => Right(user));
+  group('LoginUser Use Case', () {
+    test('should return true when the user exists', () async {
+      // Arrange
+      when(() => mockRepository.loginUser(tUserId))
+          .thenAnswer((_) async => const Right(true));
 
-    // Act
-    final result = await useCase(userId);
+      // Act
+      final result = await useCase(tUserId);
 
-    // Assert
-    verify(() => mockAuthenticateRepository.loginUser(userId)).called(1);
-    expect(result, Right(user));
-  });
+      // Assert
+      verify(() => mockRepository.loginUser(tUserId)).called(1);
+      expect(result, const Right(true));
+    });
 
-  test('should return failure when login fails', () async {
-    // Arrange
-    when(() => mockAuthenticateRepository.loginUser(userId))
-        .thenAnswer((_) async => const Left(ServerFailure()));
+    test('should return false when the user does not exist', () async {
+      // Arrange
+      when(() => mockRepository.loginUser(tUserId))
+          .thenAnswer((_) async => const Right(false));
 
-    // Act
-    final result = await useCase(userId);
+      // Act
+      final result = await useCase(tUserId);
 
-    // Assert
-    verify(() => mockAuthenticateRepository.loginUser(userId)).called(1);
-    expect(result, const Left(ServerFailure()));
+      // Assert
+      verify(() => mockRepository.loginUser(tUserId)).called(1);
+      expect(result, const Right(false));
+    });
+
+    test('should return ServerFailure when the repository call fails', () async {
+      // Arrange
+      const tFailureMessage = 'Failed to login user';
+      when(() => mockRepository.loginUser(tUserId))
+          .thenAnswer((_) async => Left(ServerFailure(tFailureMessage)));
+
+      // Act
+      final result = await useCase(tUserId);
+
+      // Assert
+      verify(() => mockRepository.loginUser(tUserId)).called(1);
+      expect(result, Left(ServerFailure(tFailureMessage)));
+    });
   });
 }

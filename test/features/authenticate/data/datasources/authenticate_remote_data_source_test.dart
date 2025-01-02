@@ -1,105 +1,110 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:dartz/dartz.dart';
+import 'package:task_manager_firebase/core/error/failures.dart';
 import 'package:task_manager_firebase/features/authenticate/data/datasources/authenticate_remote_data_source.dart';
+import 'package:task_manager_firebase/features/authenticate/data/repositories/authenticate_repository_impl.dart';
 
-class MockFirebaseDatabase extends Mock implements FirebaseDatabase {}
-
-class MockDatabaseReference extends Mock implements DatabaseReference {}
-
-class MockTransactionResult extends Mock implements TransactionResult {}
-
-class MockDataSnapshot extends Mock implements DataSnapshot {}
+class MockAuthenticateRemoteDataSource extends Mock
+    implements AuthenticateRemoteDataSource {}
 
 void main() {
-  late MockFirebaseDatabase mockFirebaseDatabase;
-  late MockDatabaseReference mockDatabaseReference;
-  late AuthenticateRemoteDataSourceImpl remoteDataSource;
+  late AuthenticateRepositoryImpl repository;
+  late MockAuthenticateRemoteDataSource mockRemoteDataSource;
 
   setUp(() {
-    mockFirebaseDatabase = MockFirebaseDatabase();
-    mockDatabaseReference = MockDatabaseReference();
-    remoteDataSource = AuthenticateRemoteDataSourceImpl(mockFirebaseDatabase);
-
-    // Mock FirebaseDatabase.ref() to return a mock DatabaseReference
-    when(() => mockFirebaseDatabase.ref()).thenReturn(mockDatabaseReference);
-
-    // Mock DatabaseReference.child() to return itself for chaining
-    when(() => mockDatabaseReference.child(any())).thenReturn(mockDatabaseReference);
+    mockRemoteDataSource = MockAuthenticateRemoteDataSource();
+    repository = AuthenticateRepositoryImpl(mockRemoteDataSource);
   });
 
   group('registerUser', () {
-    test('should increment user count and register new user', () async {
+    const userId = 'user_1';
+
+    test('should return Right(userId) when registration is successful', () async {
       // Arrange
-      final mockTransactionResult = MockTransactionResult();
-      when(() => mockTransactionResult.committed).thenReturn(true);
-      when(() => mockTransactionResult.snapshot.value).thenReturn(1);
-
-      when(() => mockDatabaseReference.runTransaction(any()))
-          .thenAnswer((invocation) async {
-        final transactionHandler = invocation.positionalArguments[0] as TransactionHandler;
-        transactionHandler(null); // Simulate a transaction handler call
-        return mockTransactionResult;
-      });
-
-      when(() => mockDatabaseReference.set(any())).thenAnswer((_) async {});
+      when(() => mockRemoteDataSource.registerUser())
+          .thenAnswer((_) async => userId);
 
       // Act
-      final result = await remoteDataSource.registerUser();
+      final result = await repository.registerUser();
 
       // Assert
-      expect(result, equals('user_1'));
-      verify(() => mockDatabaseReference.child('user_count')).called(1);
-      verify(() => mockDatabaseReference.child('users/user_1')).called(1);
+      expect(result, const Right(userId));
+      verify(() => mockRemoteDataSource.registerUser()).called(1);
     });
 
-    test('should throw exception if transaction fails', () async {
+    test('should return Left(Failure) when registration fails', () async {
       // Arrange
-      final mockTransactionResult = MockTransactionResult();
-      when(() => mockTransactionResult.committed).thenReturn(false);
+      when(() => mockRemoteDataSource.registerUser())
+          .thenThrow(Exception('Registration error'));
 
-      when(() => mockDatabaseReference.runTransaction(any()))
-          .thenAnswer((_) async => mockTransactionResult);
+      // Act
+      final result = await repository.registerUser();
 
-      // Act & Assert
-      expect(
-        () => remoteDataSource.registerUser(),
-        throwsA(isA<Exception>()),
-      );
+      // Assert
+      expect(result, isA<Left<Failure, String>>());
+      verify(() => mockRemoteDataSource.registerUser()).called(1);
     });
   });
 
   group('loginUser', () {
     const userId = 'user_1';
 
-    test('should return true if user exists in Firebase', () async {
+    test('should return Right(true) when login is successful', () async {
       // Arrange
-      final mockDataSnapshot = MockDataSnapshot();
-      when(() => mockDatabaseReference.get())
-          .thenAnswer((_) async => mockDataSnapshot);
-      when(() => mockDataSnapshot.exists).thenReturn(true);
+      when(() => mockRemoteDataSource.loginUser(userId))
+          .thenAnswer((_) async => true);
 
       // Act
-      final result = await remoteDataSource.loginUser(userId);
+      final result = await repository.loginUser(userId);
 
       // Assert
-      expect(result, isTrue);
-      verify(() => mockDatabaseReference.child('users/$userId')).called(1);
+      expect(result, const Right(true));
+      verify(() => mockRemoteDataSource.loginUser(userId)).called(1);
     });
 
-    test('should return false if user does not exist', () async {
+    test('should return Right(false) when login is unsuccessful', () async {
       // Arrange
-      final mockDataSnapshot = MockDataSnapshot();
-      when(() => mockDatabaseReference.get())
-          .thenAnswer((_) async => mockDataSnapshot);
-      when(() => mockDataSnapshot.exists).thenReturn(false);
+      when(() => mockRemoteDataSource.loginUser(userId))
+          .thenAnswer((_) async => false);
 
       // Act
-      final result = await remoteDataSource.loginUser(userId);
+      final result = await repository.loginUser(userId);
 
       // Assert
-      expect(result, isFalse);
-      verify(() => mockDatabaseReference.child('users/$userId')).called(1);
+      expect(result, const Right(false));
+      verify(() => mockRemoteDataSource.loginUser(userId)).called(1);
+    });
+
+    test('should return Left(Failure) when login throws an exception', () async {
+      // Arrange
+      when(() => mockRemoteDataSource.loginUser(userId))
+          .thenThrow(Exception('Login error'));
+
+      // Act
+      final result = await repository.loginUser(userId);
+
+      // Assert
+      expect(result, isA<Left<Failure, bool>>());
+      verify(() => mockRemoteDataSource.loginUser(userId)).called(1);
     });
   });
+
+  group('logoutUser', () {
+  test('should return Right(void) for successful logout', () async {
+    // Act
+    final result = await repository.logoutUser();
+
+    // Assert
+    expect(result, const Right(null));
+  });
+
+  test('should not throw an exception and always return Right(void)', () async {
+    // Act
+    final result = await repository.logoutUser();
+
+    // Assert
+    expect(result, const Right(null));
+  });
+});
 }

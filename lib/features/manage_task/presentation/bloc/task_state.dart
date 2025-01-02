@@ -38,3 +38,4 @@ class TaskError extends TaskState {
   @override
   List<Object?> get props => [message];
 }
+class TaskLoggedOut extends TaskState {}

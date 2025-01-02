@@ -67,3 +67,9 @@ class ApplyAdvancedFilterEvent extends TaskEvent {
 }
 
 class RestoreFiltersEvent extends TaskEvent {}
+class LogoutEvent extends TaskEvent {
+  const LogoutEvent();
+
+  @override
+  List<Object?> get props => [];
+}

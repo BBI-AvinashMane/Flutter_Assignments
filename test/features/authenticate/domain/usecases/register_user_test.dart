@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
-import 'package:task_manager_firebase/features/authenticate/domain/entities/authenticate_entity.dart';
+import 'package:task_manager_firebase/core/error/failures.dart';
+import 'package:task_manager_firebase/core/usecases/usecase.dart';
 import 'package:task_manager_firebase/features/authenticate/domain/repositories/authenticate_repository.dart';
 import 'package:task_manager_firebase/features/authenticate/domain/usecases/register_user.dart';
-import 'package:task_manager_firebase/core/error/failures.dart';
 
 class MockAuthenticateRepository extends Mock
     implements AuthenticateRepository {}
@@ -15,35 +15,36 @@ void main() {
 
   setUp(() {
     mockAuthenticateRepository = MockAuthenticateRepository();
-    useCase = RegisterUser(repository: mockAuthenticateRepository);
+    useCase = RegisterUser(mockAuthenticateRepository);
   });
 
-  const userId = 'user_1';
-  final user = AuthenticateEntity(userId: userId);
+  group('RegisterUser Use Case', () {
+    test('should return user ID when registration is successful', () async {
+      // Arrange
+      const userId = 'user_1';
+      when(() => mockAuthenticateRepository.registerUser())
+          .thenAnswer((_) async => const Right(userId));
 
-  test('should return success when user registration is successful', () async {
-    // Arrange
-    when(() => mockAuthenticateRepository.registerUser(user))
-        .thenAnswer((_) async => const Right(unit));
+      // Act
+      final result = await useCase(NoParams());
 
-    // Act
-    final result = await useCase(user);
+      // Assert
+      verify(() => mockAuthenticateRepository.registerUser()).called(1);
+      expect(result, const Right(userId)); // Expecting a successful user ID
+    });
 
-    // Assert
-    verify(() => mockAuthenticateRepository.registerUser(user)).called(1);
-    expect(result, const Right(unit));
-  });
+    test('should return failure when registration fails', () async {
+      // Arrange
+      const failure = ServerFailure('Registration failed');
+      when(() => mockAuthenticateRepository.registerUser())
+          .thenAnswer((_) async => const Left(failure));
 
-  test('should return failure when user registration fails', () async {
-    // Arrange
-    when(() => mockAuthenticateRepository.registerUser(user))
-        .thenAnswer((_) async => const Left(ServerFailure()));
+      // Act
+      final result = await useCase(NoParams());
 
-    // Act
-    final result = await useCase(user);
-
-    // Assert
-    verify(() => mockAuthenticateRepository.registerUser(user)).called(1);
-    expect(result, const Left(ServerFailure()));
+      // Assert
+      verify(() => mockAuthenticateRepository.registerUser()).called(1);
+      expect(result, const Left(failure)); // Expecting a failure
+    });
   });
 }

@@ -1,8 +1,10 @@
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskFilterPage extends StatefulWidget {
   final String userId;
-  final String? priorityLevel; // Add this parameter to the constructor
+  final String? priorityLevel;
 
   const TaskFilterPage({Key? key, required this.userId, this.priorityLevel}) : super(key: key);
 
@@ -15,13 +17,39 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
   bool _filterByDueDate = false;
   String? _specificPriority;
 
+  final List<String> _priorities = ['High', 'Medium', 'Low'];
+
   @override
   void initState() {
     super.initState();
-    _specificPriority = widget.priorityLevel; // Use priorityLevel if provided
+    _loadFilters();
   }
 
-  void _resetFilters() {
+  Future<void> _loadFilters() async {
+    final preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _filterByPriorityOrder = preferences.getBool('filterByPriorityOrder') ?? false;
+      _filterByDueDate = preferences.getBool('filterByDueDate') ?? false;
+      _specificPriority = preferences.getString('specificPriority');
+      if (_filterByPriorityOrder) {
+        _specificPriority = null; // Clear specific priority if priority order is selected
+      }
+    });
+  }
+
+  Future<void> _saveFilters() async {
+    final preferences = await SharedPreferences.getInstance();
+    preferences.setBool('filterByPriorityOrder', _filterByPriorityOrder);
+    preferences.setBool('filterByDueDate', _filterByDueDate);
+    preferences.setString('specificPriority', _specificPriority ?? '');
+  }
+
+  Future<void> _resetFilters() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove('filterByPriorityOrder');
+    await preferences.remove('filterByDueDate');
+    await preferences.remove('specificPriority');
+
     setState(() {
       _filterByPriorityOrder = false;
       _filterByDueDate = false;
@@ -36,8 +64,8 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
         title: const Text("Filter Tasks"),
         actions: [
           TextButton(
-            onPressed: () {
-              _resetFilters(); // Reset filters visually
+            onPressed: () async {
+              await _resetFilters();
               Navigator.pop(context, {
                 'filterByPriorityOrder': false,
                 'filterByDueDate': false,
@@ -62,23 +90,28 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
               onChanged: (value) {
                 setState(() {
                   _filterByPriorityOrder = value ?? false;
+                  if (_filterByPriorityOrder) {
+                    _specificPriority = null; // Clear specific priority if Priority Order is selected
+                  }
                 });
               },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _specificPriority,
-              items: ['High', 'Medium', 'Low']
+              items: _priorities
                   .map((priority) => DropdownMenuItem(
                         value: priority,
                         child: Text(priority),
                       ))
                   .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _specificPriority = value;
-                });
-              },
+              onChanged: _filterByPriorityOrder
+                  ? null // Disable dropdown if Priority Order is checked
+                  : (value) {
+                      setState(() {
+                        _specificPriority = value;
+                      });
+                    },
               decoration: const InputDecoration(labelText: 'Specific Priority'),
             ),
             const SizedBox(height: 16),
@@ -93,8 +126,8 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                // Apply filters and pass back to TaskList
+              onPressed: () async {
+                await _saveFilters();
                 Navigator.pop(context, {
                   'filterByPriorityOrder': _filterByPriorityOrder,
                   'filterByDueDate': _filterByDueDate,

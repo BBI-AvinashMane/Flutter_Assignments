@@ -37,13 +37,13 @@ void main() {
 
   test('should return a failure when repository fails', () async {
     // Arrange
-    when(() => mockRepository.fetchTasks(userId)).thenAnswer((_) async => Left(ServerFailure()));
+    when(() => mockRepository.fetchTasks(userId)).thenAnswer((_) async =>  Left(ServerFailure('ServerFailure')));
 
     // Act
     final result = await useCase(userId);
 
     // Assert
-    expect(result, Left(ServerFailure()));
+    expect(result, Left(ServerFailure('ServerFailure')));
     verify(() => mockRepository.fetchTasks(userId)).called(1);
   });
 }

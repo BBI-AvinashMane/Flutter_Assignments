@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_manager_firebase/features/authenticate/presentation/bloc/authenticate_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String userId;
@@ -29,11 +31,17 @@ class MenuDrawer extends StatelessWidget {
             onTap: () async {
               final shouldLogout = await _showLogoutDialog(context);
               if (shouldLogout) {
-                BlocProvider.of<AuthenticateBloc>(context).add(LogoutEvent(context));//LogoutEvent(context) here context added
+                // Clear shared preferences
+                await _clearSharedPreferences();
+
+                // Trigger LogoutEvent
+                BlocProvider.of<AuthenticateBloc>(context).add(LogoutEvent(context));
+
+                // Navigate to login or home screen
                 Navigator.pushNamedAndRemoveUntil(
                   context,
-                  '/',
-                  (route) => false, // Clear all previous routes
+                  '/', // Replace with your login or home route
+                  (route) => false,
                 );
               }
             },
@@ -43,7 +51,14 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  /// Display a confirmation dialog for logout
+  Future<void> _clearSharedPreferences() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove('filterByPriority');
+    await preferences.remove('priorityLevel');
+    await preferences.remove('filterByDueDate');
+    await preferences.remove('userId');
+  }
+
   Future<bool> _showLogoutDialog(BuildContext context) async {
     return await showDialog<bool>(
           context: context,
