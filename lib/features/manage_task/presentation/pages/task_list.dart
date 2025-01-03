@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -83,15 +84,20 @@ class _TaskListState extends State<TaskList> {
                     margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: isExpanded ? Colors.blue.shade50 : Colors.white,
+                      border: task.dueDate.isBefore(DateTime.now())
+                          ? Border.all(color: Colors.red, width: 2)
+                          : null,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          blurRadius: 5,
-                          spreadRadius: 2,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
+                      boxShadow: task.dueDate.isBefore(DateTime.now())
+                          ? [
+                              BoxShadow(
+                                color: Colors.red.withOpacity(0.3),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 3),
+                              ),
+                            ]
+                          : [],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,6 +171,7 @@ class _TaskListState extends State<TaskList> {
   }
 
   Widget _buildTaskDetails(task) {
+    final overdueHours = DateTime.now().difference(task.dueDate).inHours;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -181,6 +188,15 @@ class _TaskListState extends State<TaskList> {
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
+          if (task.dueDate.isBefore(DateTime.now()))
+            Text(
+              "Overdue by: $overdueHours hours",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.red.shade700,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           Text(
             "Priority: ${task.priority}",
             style: const TextStyle(fontSize: 16),

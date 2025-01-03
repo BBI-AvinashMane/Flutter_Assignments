@@ -1,4 +1,3 @@
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/usecases/add_task.dart';
@@ -60,15 +59,19 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       result.fold(
         (failure) => emit(TaskError(failure.message)),
         (_) {
-          add(LoadTasksEvent(event.userId));
+          final updatedTasks = currentState.originalTasks..add(event.task);
+
+          // Apply saved filters
+          final filteredTasks = filterAndSortTasks.call(
+            tasks: updatedTasks,
+            filterByPriority: currentState.filterByPriority,
+            filterByDueDate: currentState.filterByDueDate,
+            specificPriority: currentState.priorityLevel,
+          );
+
           emit(TaskLoaded(
-            tasks: filterAndSortTasks.call(
-              tasks: currentState.originalTasks..add(event.task),
-              filterByPriority: currentState.filterByPriority,
-              filterByDueDate: currentState.filterByDueDate,
-              specificPriority: currentState.priorityLevel,
-            ),
-            originalTasks: currentState.originalTasks..add(event.task),
+            tasks: filteredTasks,
+            originalTasks: updatedTasks,
             filterByPriority: currentState.filterByPriority,
             filterByDueDate: currentState.filterByDueDate,
             priorityLevel: currentState.priorityLevel,
@@ -89,13 +92,17 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           final updatedTasks = currentState.originalTasks
               .map((task) => task.id == event.task.id ? event.task : task)
               .toList();
+
+          // Apply saved filters
+          final filteredTasks = filterAndSortTasks.call(
+            tasks: updatedTasks,
+            filterByPriority: currentState.filterByPriority,
+            filterByDueDate: currentState.filterByDueDate,
+            specificPriority: currentState.priorityLevel,
+          );
+
           emit(TaskLoaded(
-            tasks: filterAndSortTasks.call(
-              tasks: updatedTasks,
-              filterByPriority: currentState.filterByPriority,
-              filterByDueDate: currentState.filterByDueDate,
-              specificPriority: currentState.priorityLevel,
-            ),
+            tasks: filteredTasks,
             originalTasks: updatedTasks,
             filterByPriority: currentState.filterByPriority,
             filterByDueDate: currentState.filterByDueDate,
@@ -117,13 +124,17 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           final updatedTasks = currentState.originalTasks
               .where((task) => task.id != event.taskId)
               .toList();
+
+          // Apply saved filters
+          final filteredTasks = filterAndSortTasks.call(
+            tasks: updatedTasks,
+            filterByPriority: currentState.filterByPriority,
+            filterByDueDate: currentState.filterByDueDate,
+            specificPriority: currentState.priorityLevel,
+          );
+
           emit(TaskLoaded(
-            tasks: filterAndSortTasks.call(
-              tasks: updatedTasks,
-              filterByPriority: currentState.filterByPriority,
-              filterByDueDate: currentState.filterByDueDate,
-              specificPriority: currentState.priorityLevel,
-            ),
+            tasks: filteredTasks,
             originalTasks: updatedTasks,
             filterByPriority: currentState.filterByPriority,
             filterByDueDate: currentState.filterByDueDate,
@@ -143,6 +154,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       preferences.setString('priorityLevel', event.specificPriority ?? '');
       preferences.setBool('filterByDueDate', event.filterByDueDate);
 
+      // Apply filters
       final filteredTasks = filterAndSortTasks.call(
         tasks: currentState.originalTasks,
         filterByPriority: event.specificPriority != null,
@@ -162,38 +174,37 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   Future<void> _onRestoreFilters(RestoreFiltersEvent event, Emitter<TaskState> emit) async {
-  final userId = preferences.getString('userId') ?? ''; // Retrieve user ID
-  if (userId.isEmpty) {
-    emit(TaskError("No user ID found. Please log in."));
-    return;
+    final userId = preferences.getString('userId') ?? '';
+    if (userId.isEmpty) {
+      emit(TaskError("No user ID found. Please log in."));
+      return;
+    }
+
+    // Load saved filters
+    final filterByPriority = preferences.getBool('filterByPriority') ?? false;
+    final filterByDueDate = preferences.getBool('filterByDueDate') ?? false;
+    final priorityLevel = preferences.getString('priorityLevel');
+
+    final result = await getTasks.call(userId);
+    result.fold(
+      (failure) => emit(TaskError(failure.message)),
+      (tasks) {
+        final filteredTasks = filterAndSortTasks.call(
+          tasks: tasks,
+          filterByPriority: filterByPriority,
+          filterByDueDate: filterByDueDate,
+          specificPriority: priorityLevel,
+        );
+        emit(TaskLoaded(
+          tasks: filteredTasks,
+          originalTasks: tasks,
+          filterByPriority: filterByPriority,
+          filterByDueDate: filterByDueDate,
+          priorityLevel: priorityLevel,
+        ));
+      },
+    );
   }
-
-  // Load saved filters
-  final filterByPriority = preferences.getBool('filterByPriority') ?? false;
-  final filterByDueDate = preferences.getBool('filterByDueDate') ?? false;
-  final priorityLevel = preferences.getString('priorityLevel');
-
-  final result = await getTasks.call(userId);
-  result.fold(
-    (failure) => emit(TaskError(failure.message)),
-    (tasks) {
-      final filteredTasks = filterAndSortTasks.call(
-        tasks: tasks,
-        filterByPriority: filterByPriority,
-        filterByDueDate: filterByDueDate,
-        specificPriority: priorityLevel,
-      );
-      emit(TaskLoaded(
-        tasks: filteredTasks,
-        originalTasks: tasks,
-        filterByPriority: filterByPriority,
-        filterByDueDate: filterByDueDate,
-        priorityLevel: priorityLevel,
-      ));
-    },
-  );
-}
-
 
   Future<void> _onLogout(LogoutEvent event, Emitter<TaskState> emit) async {
     emit(TaskLoading());

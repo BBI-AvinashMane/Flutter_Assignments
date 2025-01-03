@@ -75,7 +75,10 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
 
   void _submitTask(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      if (_dueDate == null || _dueDate!.isBefore(DateTime.now())) {
+    
+      if (_dueDate == null || _dueDate!.isAfter(DateTime.now())) {
+        print(_dueDate);
+        print(DateTime.now());
         _triggerShakeAnimation();
         return;
       }
@@ -91,7 +94,6 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
 
       if (widget.task == null) {
         // Dispatch AddTaskEvent if it's a new task
-        print("ahdahwiawhd");
         BlocProvider.of<TaskBloc>(context).add(AddTaskEvent(task, widget.userId));
       } else {
         // Dispatch UpdateTaskEvent if it's an update

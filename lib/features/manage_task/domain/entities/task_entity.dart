@@ -19,4 +19,11 @@ class TaskEntity extends Equatable {
 
   @override
   List<Object?> get props => [id, title, description, dueDate, priority, userId];
+  bool get isOverdue => dueDate.isBefore(DateTime.now());
+
+  // Computed property to calculate overdue duration in hours
+  int get overdueHours {
+    if (!isOverdue) return 0;
+    return DateTime.now().difference(dueDate).inHours;
+  }
 }

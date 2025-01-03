@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,8 +30,14 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
       _filterByPriorityOrder = preferences.getBool('filterByPriorityOrder') ?? false;
       _filterByDueDate = preferences.getBool('filterByDueDate') ?? false;
       _specificPriority = preferences.getString('specificPriority');
+
+      // Ensure _specificPriority is valid
+      if (!_priorities.contains(_specificPriority)) {
+        _specificPriority = null;
+      }
+
       if (_filterByPriorityOrder) {
-        _specificPriority = null; // Clear specific priority if priority order is selected
+        _specificPriority = null; // Clear specific priority if Priority Order is selected
       }
     });
   }
