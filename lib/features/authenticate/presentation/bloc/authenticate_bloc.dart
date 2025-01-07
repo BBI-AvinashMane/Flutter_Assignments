@@ -1,8 +1,8 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_manager_firebase/core/usecases/usecase.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_bloc.dart';
 import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_event.dart';
 import '../../domain/usecases/register_user.dart';
@@ -33,7 +33,7 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent, AuthenticateState> {
 
   /// Restores the user session if previously logged in
   Future<void> _restoreLoginState() async {
-    final userId = preferences.getString('userId');
+    final userId = preferences.getString(Constants.userId);
     if (userId != null && userId.isNotEmpty) {
       add(LoginUserEvent(userId: userId));
     }
@@ -49,7 +49,7 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent, AuthenticateState> {
     result.fold(
       (failure) => emit(AuthenticateError(failure.message)),
       (userId) {
-        preferences.setString('userId', userId);
+        preferences.setString(Constants.userId, userId);
         emit(AuthenticateSuccess(userId: userId));
       },
     );
@@ -66,10 +66,10 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent, AuthenticateState> {
       (failure) => emit(AuthenticateError(failure.message)),
       (isValid) {
         if (isValid) {
-          preferences.setString('userId', event.userId);
+          preferences.setString(Constants.userId, event.userId);
           emit(AuthenticateSuccess(userId: event.userId));
         } else {
-          emit(AuthenticateError("Invalid User ID"));
+          emit(AuthenticateError(Constants.invalidUserId));
         }
       },
     );
@@ -85,7 +85,7 @@ class AuthenticateBloc extends Bloc<AuthenticateEvent, AuthenticateState> {
     (failure) => emit(AuthenticateError(failure.message)),
     (_) {
       // Clear persisted user ID
-      preferences.remove('userId'); 
+      preferences.remove(Constants.userId); 
 
       // Reset TaskBloc state
       final taskBloc = BlocProvider.of<TaskBloc>(event.context);

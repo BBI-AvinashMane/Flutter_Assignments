@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import '../../domain/usecases/add_task.dart';
 import '../../domain/usecases/delete_task.dart';
 import '../../domain/usecases/filter_and_sort_task.dart';
@@ -150,9 +151,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       final currentState = state as TaskLoaded;
 
       // Save filters to shared preferences
-      preferences.setBool('filterByPriority', event.specificPriority != null);
-      preferences.setString('priorityLevel', event.specificPriority ?? '');
-      preferences.setBool('filterByDueDate', event.filterByDueDate);
+      preferences.setBool(Constants.filterByPriority, event.specificPriority != null);
+      preferences.setString(Constants.priorityLevel, event.specificPriority ?? '');
+      preferences.setBool(Constants.filterByDueDate, event.filterByDueDate);
 
       // Apply filters
       final filteredTasks = filterAndSortTasks.call(
@@ -174,16 +175,16 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   }
 
   Future<void> _onRestoreFilters(RestoreFiltersEvent event, Emitter<TaskState> emit) async {
-    final userId = preferences.getString('userId') ?? '';
+    final userId = preferences.getString(Constants.userId) ?? '';
     if (userId.isEmpty) {
-      emit(TaskError("No user ID found. Please log in."));
+      emit(const TaskError(Constants.noUserIdFound));
       return;
     }
 
     // Load saved filters
-    final filterByPriority = preferences.getBool('filterByPriority') ?? false;
-    final filterByDueDate = preferences.getBool('filterByDueDate') ?? false;
-    final priorityLevel = preferences.getString('priorityLevel');
+    final filterByPriority = preferences.getBool(Constants.filterByPriority) ?? false;
+    final filterByDueDate = preferences.getBool(Constants.filterByDueDate) ?? false;
+    final priorityLevel = preferences.getString(Constants.priorityLevel);
 
     final result = await getTasks.call(userId);
     result.fold(
@@ -210,14 +211,14 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     emit(TaskLoading());
     try {
       // Clear shared preferences related to filtering and sorting
-      await preferences.remove('filterByPriority');
-      await preferences.remove('priorityLevel');
-      await preferences.remove('filterByDueDate');
-      await preferences.remove('userId');
+      await preferences.remove(Constants.filterByPriority);
+      await preferences.remove(Constants.priorityLevel);
+      await preferences.remove(Constants.filterByDueDate);
+      await preferences.remove(Constants.userId);
 
       emit(TaskLoggedOut());
     } catch (e) {
-      emit(TaskError("Failed to log out: ${e.toString()}"));
+      emit(TaskError("${Constants.failedToLogoutUser}${e.toString()}"));
     }
   }
 }

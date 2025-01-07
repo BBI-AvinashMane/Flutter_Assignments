@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/menu_drawer.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_event.dart';
@@ -48,7 +47,7 @@ class _TaskListState extends State<TaskList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar(key: const Key('taskListAppBar'),
         title: const Text("Task Management"),
         actions: [
           IconButton(
@@ -150,8 +149,16 @@ class _TaskListState extends State<TaskList> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/task_form', arguments: {'userId': widget.userId});
+         key: const Key('addTaskButton'),
+        onPressed: () async {
+         final result= await Navigator.pushNamed(
+          context, 
+          '/task_form', 
+          arguments: {'userId': widget.userId}
+          );
+          if(result == true){
+            context.read<TaskBloc>().add(LoadTasksEvent(widget.userId));
+          }
         },
         child: const Icon(Icons.add),
       ),

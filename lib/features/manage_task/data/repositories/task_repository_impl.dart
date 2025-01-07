@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../domain/repositories/task_repository.dart';
@@ -24,7 +25,7 @@ class TaskRepositoryImpl implements TaskRepository {
       await remoteDataSource.addTask(taskModel, userId);
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure("Failed to add task: ${e.toString()}"));
+      return Left(ServerFailure("${Constants.faildToAddTask}${e.toString()}"));
     }
   }
 
@@ -42,7 +43,7 @@ class TaskRepositoryImpl implements TaskRepository {
       await remoteDataSource.updateTask(taskModel, userId);
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure("Failed to update task: ${e.toString()}"));
+      return Left(ServerFailure("${Constants.faildToUpdateTask}${e.toString()}"));
     }
   }
 
@@ -52,7 +53,7 @@ class TaskRepositoryImpl implements TaskRepository {
       await remoteDataSource.deleteTask(taskId, userId);
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure("Failed to delete task: ${e.toString()}"));
+      return Left(ServerFailure("${Constants.faildToDeleteTask}${e.toString()}"));
     }
   }
 
@@ -63,7 +64,7 @@ class TaskRepositoryImpl implements TaskRepository {
       final tasks = taskModels.map((model) => model as TaskEntity).toList();
       return Right(tasks);
     } catch (e) {
-      return Left(ServerFailure("Failed to fetch tasks: ${e.toString()}"));
+      return Left(ServerFailure("${Constants.faildToFetchTask}${e.toString()}"));
     }
   }
 }

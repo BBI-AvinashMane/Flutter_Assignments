@@ -1,4 +1,5 @@
 
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import 'package:task_manager_firebase/features/manage_task/domain/entities/task_entity.dart';
 
 class FilterAndSortTasks {
@@ -14,8 +15,7 @@ class FilterAndSortTasks {
 
     // Ensure specificPriority is ignored if sortByPriorityOrder is true
     if (sortByPriorityOrder && specificPriority != null) {
-      throw ArgumentError(
-          "Cannot filter by specific priority when 'Priority Order' is selected.");
+      throw ArgumentError( Constants.priorityOrderOverSpecificPriority );
     }
 
     // Filter by specific priority

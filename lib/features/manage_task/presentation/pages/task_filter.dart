@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 
 class TaskFilterPage extends StatefulWidget {
   final String userId;
   final String? priorityLevel;
 
-  const TaskFilterPage({Key? key, required this.userId, this.priorityLevel}) : super(key: key);
+  const TaskFilterPage({Key? key, required this.userId, this.priorityLevel})
+      : super(key: key);
 
   @override
   _TaskFilterPageState createState() => _TaskFilterPageState();
@@ -16,7 +18,7 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
   bool _filterByDueDate = false;
   String? _specificPriority;
 
-  final List<String> _priorities = ['High', 'Medium', 'Low'];
+  final List<String> _priorities = [Constants.priorityHighText, Constants.priorityMediumText, Constants.priorityLowText];
 
   @override
   void initState() {
@@ -27,9 +29,10 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
   Future<void> _loadFilters() async {
     final preferences = await SharedPreferences.getInstance();
     setState(() {
-      _filterByPriorityOrder = preferences.getBool('filterByPriorityOrder') ?? false;
-      _filterByDueDate = preferences.getBool('filterByDueDate') ?? false;
-      _specificPriority = preferences.getString('specificPriority');
+      _filterByPriorityOrder =
+          preferences.getBool(Constants.filterByPriorityOrder) ?? false;
+      _filterByDueDate = preferences.getBool(Constants.filterByDueDate) ?? false;
+      _specificPriority = preferences.getString(Constants.specificPriority);
 
       // Ensure _specificPriority is valid
       if (!_priorities.contains(_specificPriority)) {
@@ -37,23 +40,25 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
       }
 
       if (_filterByPriorityOrder) {
-        _specificPriority = null; // Clear specific priority if Priority Order is selected
+        _specificPriority =
+            null; // Clear specific priority if Priority Order is selected
       }
     });
   }
 
   Future<void> _saveFilters() async {
     final preferences = await SharedPreferences.getInstance();
-    preferences.setBool('filterByPriorityOrder', _filterByPriorityOrder);
-    preferences.setBool('filterByDueDate', _filterByDueDate);
-    preferences.setString('specificPriority', _specificPriority ?? '');
+    preferences.setBool(Constants.filterByPriorityOrder, _filterByPriorityOrder);
+    preferences.setBool(Constants.filterByDueDate, _filterByDueDate);
+    preferences.setString(Constants.specificPriority, _specificPriority ?? '');
+   // debugPrint('Saved Sort by Due Date: $_filterByDueDate');
   }
 
   Future<void> _resetFilters() async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove('filterByPriorityOrder');
-    await preferences.remove('filterByDueDate');
-    await preferences.remove('specificPriority');
+    await preferences.remove(Constants.filterByPriorityOrder);
+    await preferences.remove(Constants.filterByDueDate);
+    await preferences.remove(Constants.specificPriority);
 
     setState(() {
       _filterByPriorityOrder = false;
@@ -66,20 +71,20 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Filter Tasks"),
+        title: const Text(Constants.filterTasks),
         actions: [
           TextButton(
             onPressed: () async {
               await _resetFilters();
               Navigator.pop(context, {
-                'filterByPriorityOrder': false,
-                'filterByDueDate': false,
-                'specificPriority': null,
+                Constants.filterByPriorityOrder: false,
+                Constants.filterByDueDate: false,
+                Constants.specificPriority: null,
               });
             },
             child: const Text(
-              "Reset",
-              style: TextStyle(color: Colors.white),
+              Constants.resetFilters,
+              style: TextStyle(color: Color.fromARGB(255, 245, 30, 6)),
             ),
           ),
         ],
@@ -90,19 +95,23 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CheckboxListTile(
-              title: const Text("Priority Order (High > Medium > Low)"),
+              key: const Key(Constants.priorityOrderCheckbox),
+              title: const Text(Constants.priorityOrderText),
               value: _filterByPriorityOrder,
               onChanged: (value) {
                 setState(() {
                   _filterByPriorityOrder = value ?? false;
+                  // debugPrint('Checkbox toggled: $_filterByPriorityOrder');
                   if (_filterByPriorityOrder) {
-                    _specificPriority = null; // Clear specific priority if Priority Order is selected
+                    _specificPriority =
+                        null; // Clear specific priority if Priority Order is selected
                   }
                 });
               },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              key: const Key(Constants.specificPriorityDropdown),
               value: _specificPriority,
               items: _priorities
                   .map((priority) => DropdownMenuItem(
@@ -115,17 +124,23 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
                   : (value) {
                       setState(() {
                         _specificPriority = value;
+                         _saveFilters();//added while testing
                       });
                     },
-              decoration: const InputDecoration(labelText: 'Specific Priority'),
+              decoration: const InputDecoration(labelText: Constants.specificPriorityLabel),
             ),
             const SizedBox(height: 16),
             CheckboxListTile(
-              title: const Text("Sort by Due Date"),
+              title: const Text(Constants.sortByDuedate),
               value: _filterByDueDate,
               onChanged: (value) {
                 setState(() {
                   _filterByDueDate = value ?? false;
+                  //debugPrint('Sort by Due Date toggled: $_filterByDueDate');
+                  if (_filterByPriorityOrder) {
+                    _specificPriority =
+                        null; // Clear specific priority if Priority Order is selected
+                  } // this if statement is added while testing
                 });
               },
             ),
@@ -134,12 +149,12 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
               onPressed: () async {
                 await _saveFilters();
                 Navigator.pop(context, {
-                  'filterByPriorityOrder': _filterByPriorityOrder,
-                  'filterByDueDate': _filterByDueDate,
-                  'specificPriority': _specificPriority,
+                 Constants.filterByPriorityOrder: _filterByPriorityOrder,
+                  Constants.filterByDueDate: _filterByDueDate,
+                 Constants.specificPriority: _specificPriority,
                 });
               },
-              child: const Text("Apply Filters"),
+              child: const Text(Constants.applyFilters),
             ),
           ],
         ),

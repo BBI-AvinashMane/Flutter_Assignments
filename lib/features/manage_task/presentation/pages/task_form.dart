@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_bloc.dart';
 import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_event.dart';
 import 'package:task_manager_firebase/features/manage_task/domain/entities/task_entity.dart';
-import 'dart:async';
+
+extension DateTimeExtensions on DateTime {
+  DateTime startOfDay() {
+    return DateTime(this.year, this.month, this.day);
+  }
+}
 
 class TaskForm extends StatefulWidget {
   final String userId;
@@ -15,12 +21,13 @@ class TaskForm extends StatefulWidget {
   _TaskFormState createState() => _TaskFormState();
 }
 
-class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin {
+class _TaskFormState extends State<TaskForm>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _dueDate;
-  String _priority = 'Medium';
+  String _priority = Constants.priorityMediumText;
 
   late AnimationController _animationController;
   late Animation<Offset> _animation;
@@ -75,10 +82,8 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
 
   void _submitTask(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-    
-      if (_dueDate == null || _dueDate!.isAfter(DateTime.now())) {
-        print(_dueDate);
-        print(DateTime.now());
+      if (_dueDate == null ||
+          _dueDate!.isBefore(DateTime.now().toLocal().startOfDay())) {
         _triggerShakeAnimation();
         return;
       }
@@ -94,13 +99,15 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
 
       if (widget.task == null) {
         // Dispatch AddTaskEvent if it's a new task
-        BlocProvider.of<TaskBloc>(context).add(AddTaskEvent(task, widget.userId));
+        BlocProvider.of<TaskBloc>(context)
+            .add(AddTaskEvent(task, widget.userId));
       } else {
         // Dispatch UpdateTaskEvent if it's an update
-        BlocProvider.of<TaskBloc>(context).add(UpdateTaskEvent(task, widget.userId));
+        BlocProvider.of<TaskBloc>(context)
+            .add(UpdateTaskEvent(task, widget.userId));
       }
 
-      Navigator.pop(context);
+      Navigator.pop(context,true);
     } else {
       _triggerShakeAnimation();
     }
@@ -110,23 +117,27 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.task == null ? "Add Task" : "Edit Task"),
+        title: Text(widget.task == null ? Constants.taskAddButton : Constants.taskEditButton),
+        key: const Key(Constants.appBarTitleKey),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SlideTransition(
-            position: _isShaking ? _animation : AlwaysStoppedAnimation(Offset.zero),
+            position: _isShaking
+                ? _animation
+                : const AlwaysStoppedAnimation(Offset.zero),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
+                  key: const Key(Constants.titleFieldKey),
                   controller: _titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
+                  decoration: const InputDecoration(labelText: Constants.taskTitleLabel),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Title cannot be empty';
+                      return Constants.taskValidationTitleEmpty;
                     }
                     return null;
                   },
@@ -134,12 +145,12 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: const InputDecoration(labelText: Constants.taskDescription),
                 ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    const Text("Due Date: "),
+                    const Text(Constants.taskDueDateLabel),
                     TextButton(
                       onPressed: () async {
                         final selectedDate = await showDatePicker(
@@ -156,7 +167,7 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
                       },
                       child: Text(
                         _dueDate == null
-                            ? "Select Date"
+                            ? Constants.selectDateLabel
                             : _dueDate!.toLocal().toString().split(' ')[0],
                       ),
                     ),
@@ -173,15 +184,16 @@ class _TaskFormState extends State<TaskForm> with SingleTickerProviderStateMixin
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      _priority = value ?? 'Medium';
+                      _priority = value ?? Constants.priorityMediumText;
                     });
                   },
-                  decoration: const InputDecoration(labelText: 'Priority'),
+                  decoration: const InputDecoration(labelText: Constants.taskPriority),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
+                  key: const Key(Constants.addUpdateTaskButton),
                   onPressed: () => _submitTask(context),
-                  child: Text(widget.task == null ? "Add Task" : "Update Task"),
+                  child: Text(widget.task == null ? Constants.taskAddButton : Constants.taskUpdateButton),
                 ),
               ],
             ),

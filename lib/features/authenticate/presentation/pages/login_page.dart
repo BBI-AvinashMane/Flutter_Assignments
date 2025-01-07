@@ -19,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Login'),key: const Key('appBarLoginTitle'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -34,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                key: const Key('userIdTextField'),
                 controller: _userIdController,
                 keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.done,
@@ -45,9 +46,9 @@ class _LoginPageState extends State<LoginPage> {
                   if (value == null || value.isEmpty) {
                     return 'User ID cannot be empty';
                   }
-                //   if (!value.startsWith('user_')) {
-                //     return 'User ID must start with "user_"';
-                //   }
+                  // if (!value.startsWith('user_')) {
+                  //   return 'User ID must start with "user_"';
+                  // }
                    return null;
                  },
               ),
@@ -70,6 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
+                       key: const Key('loginButton'),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           BlocProvider.of<AuthenticateBloc>(context).add(
