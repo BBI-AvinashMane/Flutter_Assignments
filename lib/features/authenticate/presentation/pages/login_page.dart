@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import '../bloc/authenticate_bloc.dart';
 
 
@@ -19,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),key: const Key('appBarLoginTitle'),
+        title: const Text(Constants.loginScreenTitle),key: const Key(Constants.appBarLoginTitle),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -29,22 +30,22 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Enter your User ID to log in:",
+                Constants.userIDInput,
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
               TextFormField(
-                key: const Key('userIdTextField'),
+                key: const Key(Constants.userIdTextField),
                 controller: _userIdController,
                 keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'User ID',
+                  labelText: Constants.userIDInputLabel,
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'User ID cannot be empty';
+                    return Constants.userIdEmptyValidation;
                   }
                   // if (!value.startsWith('user_')) {
                   //   return 'User ID must start with "user_"';
@@ -60,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                       SnackBar(content: Text(state.message)),
                     );
                   } else if (state is AuthenticateSuccess) {
-                    Navigator.pushReplacementNamed(context, '/tasks',
+                    Navigator.pushReplacementNamed(context, Constants.tasksRoute,
                         arguments: state.userId);
                   }
                 },
@@ -71,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                       key: const Key('loginButton'),
+                       key: const Key(Constants.loginButtonKey),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           BlocProvider.of<AuthenticateBloc>(context).add(
@@ -79,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                           );
                         }
                       },
-                      child: const Text('Login'),
+                      child: const Text(Constants.loginButton),
                     ),
                   );
                 },

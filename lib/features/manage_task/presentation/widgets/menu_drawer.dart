@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import 'package:task_manager_firebase/features/authenticate/presentation/bloc/authenticate_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,7 +17,7 @@ class MenuDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: const Text("Welcome"),
+            accountName: const Text(Constants.welcomeText),
             accountEmail: Text(userId),
             currentAccountPicture: CircleAvatar(
               child: Text(
@@ -27,7 +28,7 @@ class MenuDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text("Logout"),
+            title: const Text(Constants.logoutText),
             onTap: () async {
               final shouldLogout = await _showLogoutDialog(context);
               if (shouldLogout) {
@@ -53,26 +54,26 @@ class MenuDrawer extends StatelessWidget {
 
   Future<void> _clearSharedPreferences() async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove('filterByPriority');
-    await preferences.remove('priorityLevel');
-    await preferences.remove('filterByDueDate');
-    await preferences.remove('userId');
+    await preferences.remove(Constants.filterByPriority);
+    await preferences.remove(Constants.priorityLevel);
+    await preferences.remove(Constants.filterByDueDate);
+    await preferences.remove(Constants.userId);
   }
 
   Future<bool> _showLogoutDialog(BuildContext context) async {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Confirm Logout"),
-            content: const Text("Are you sure you want to log out?"),
+            title: const Text(Constants.confirmLogoutTitle),
+            content: const Text(Constants.confirmLogoutMessage),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text("Cancel"),
+                child: const Text(Constants.cancelButton),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text("Logout"),
+                child: const Text(Constants.logoutButton),
               ),
             ],
           ),

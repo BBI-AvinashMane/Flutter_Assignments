@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import 'package:task_manager_firebase/features/authenticate/presentation/pages/login_page.dart';
 import 'package:task_manager_firebase/features/manage_task/presentation/bloc/task_bloc.dart';
 import 'injection_container.dart' as di;
@@ -35,54 +36,55 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Task Manager',
+        title: Constants.appName,
         theme: ThemeData(primarySwatch: Colors.blue),
-        initialRoute: '/',
+        initialRoute: Constants.route,
         onGenerateRoute: _onGenerateRoute,
+        debugShowCheckedModeBanner: false,
       ),
     );
   }
 
   Route? _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case '/':
+      case Constants.route:
         return MaterialPageRoute(
           builder: (_) => const AuthenticatePage(),
         );
-      case '/login':
+      case Constants.loginRoute:
         return MaterialPageRoute(
           builder: (_) => const LoginPage(),
         );
-      case '/tasks':
+      case Constants.tasksRoute:
         final userId = settings.arguments as String;
         return MaterialPageRoute(
           builder: (_) => TaskList(userId: userId),
         );
-      case '/task_form':
+      case Constants.taskFormRoute:
         final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
           builder: (_) => TaskForm(
-            userId: args['userId'] as String,
-            task: args['task'], // Pass TaskEntity or null
+            userId: args[Constants.userId] as String,
+            task: args[Constants.task], // Pass TaskEntity or null
           ),
         );
-      case '/task_filter':
+      case Constants.taskFilterRoute:
         final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
           builder: (_) => TaskFilterPage(
-            userId: args['userId'] as String,
-            priorityLevel: args['priorityLevel'] as String?, // Optional priority level
+            userId: args[Constants.userId] as String,
+            priorityLevel: args[Constants.priorityLevel] as String?, // Optional priority level
           ),
         );
-      case '/logout':
+      case Constants.logOutRoute:
         return MaterialPageRoute(
           builder: (_) => LogoutScreen(),
         );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text("404 - Page Not Found")),
-            body: const Center(child: Text("Page not found.")),
+            appBar: AppBar(title: const Text(Constants.pageError)),
+            body: const Center(child: Text(Constants.pageNotFoundError)),
           ),
         );
     }
@@ -107,9 +109,9 @@ class LogoutScreen extends StatelessWidget {
 
   Future<void> _clearPreferencesAndLogout() async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove('filterByPriority');
-    await preferences.remove('priorityLevel');
-    await preferences.remove('filterByDueDate');
-    await preferences.remove('userId');
+    await preferences.remove(Constants.filterByPriority);
+    await preferences.remove(Constants.priorityLevel);
+    await preferences.remove(Constants.filterByDueDate);
+    await preferences.remove(Constants.userId);
   }
 }

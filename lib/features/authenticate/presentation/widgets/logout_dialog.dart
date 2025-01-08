@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 
 Future<bool> showLogoutDialog(BuildContext context) async {
   return await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Logout",key: Key('logoutDialogTitle'),),
-            content: const Text("Are you sure you want to log out?",key: Key('logoutDialogContent'),),
+            title: const Text(Constants.logoutTitle,key: Key(Constants.logoutDialogTitleKey),),
+            content: const Text(Constants.logoutonfirmation,key: Key(Constants.logoutDialogContentKey),),
             actions: [
               TextButton(
-                key: const Key('cancelButton'),
+                key: const Key(Constants.cancelButtonKey),
                 onPressed: () => Navigator.pop(context, false),
-                child: Text("Cancel"),
+                child: const Text(Constants.logoutCancelText),
               ),
               ElevatedButton(
-                key: const Key('logoutButton'), 
+                key: const Key(Constants.logoutButtonKey), 
                 onPressed: () => Navigator.pop(context, true),
-                child: Text("Logout"),
+                child: const Text(Constants.logoutButton),
               ),
             ],
           );

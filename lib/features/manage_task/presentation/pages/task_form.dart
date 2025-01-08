@@ -117,7 +117,7 @@ class _TaskFormState extends State<TaskForm>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.task == null ? Constants.taskAddButton : Constants.taskEditButton),
+        title: Text(widget.task == null ? Constants.taskAddTitle : Constants.taskEditTitle),
         key: const Key(Constants.appBarTitleKey),
       ),
       body: Padding(
@@ -191,7 +191,7 @@ class _TaskFormState extends State<TaskForm>
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  key: const Key(Constants.addUpdateTaskButton),
+                  key: const Key(Constants.addUpdateTaskButtonKey),
                   onPressed: () => _submitTask(context),
                   child: Text(widget.task == null ? Constants.taskAddButton : Constants.taskUpdateButton),
                 ),

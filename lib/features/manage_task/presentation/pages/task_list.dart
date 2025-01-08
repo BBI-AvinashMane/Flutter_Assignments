@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constants.dart';
 import '../widgets/menu_drawer.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_event.dart';
@@ -28,17 +28,18 @@ class _TaskListState extends State<TaskList> {
   Future<void> _applyFilters(BuildContext context) async {
     final filterResult = await Navigator.pushNamed(
       context,
-      '/task_filter',
-      arguments: {'userId': widget.userId},
+      Constants.taskFilterRoute,
+      arguments: {Constants.userId: widget.userId},
     );
 
     if (filterResult != null && mounted) {
       final filters = filterResult as Map<String, dynamic>;
       BlocProvider.of<TaskBloc>(context).add(
         ApplyAdvancedFilterEvent(
-          filterByPriorityOrder: filters['filterByPriorityOrder'] ?? false,
-          filterByDueDate: filters['filterByDueDate'] ?? false,
-          specificPriority: filters['specificPriority'],
+          filterByPriorityOrder:
+              filters[Constants.filterByPriorityOrder] ?? false,
+          filterByDueDate: filters[Constants.filterByDueDate] ?? false,
+          specificPriority: filters[Constants.specificPriority],
         ),
       );
     }
@@ -47,8 +48,9 @@ class _TaskListState extends State<TaskList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(key: const Key('taskListAppBar'),
-        title: const Text("Task Management"),
+      appBar: AppBar(
+        key: const Key(Constants.taskListAppBar),
+        title: const Text(Constants.taskManagement),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_alt),
@@ -63,7 +65,7 @@ class _TaskListState extends State<TaskList> {
             return const Center(child: CircularProgressIndicator());
           } else if (state is TaskLoaded) {
             if (state.tasks.isEmpty) {
-              return const Center(child: Text("No tasks available."));
+              return const Center(child: Text(Constants.noTasksFoundMessage));
             }
             return ListView.builder(
               itemCount: state.tasks.length,
@@ -80,7 +82,8 @@ class _TaskListState extends State<TaskList> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
-                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: isExpanded ? Colors.blue.shade50 : Colors.white,
                       border: task.dueDate.isBefore(DateTime.now())
@@ -106,26 +109,29 @@ class _TaskListState extends State<TaskList> {
                             task.title,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          subtitle: Text("Due: ${task.dueDate.toLocal().toString().split(' ')[0]}"),
+                          subtitle: Text(
+                              "${Constants.taskDueDateLabel}${task.dueDate.toLocal().toString().split(' ')[0]}"),
                           leading: _buildPriorityIndicator(task.priority),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.blue),
                                 onPressed: () {
                                   Navigator.pushNamed(
                                     context,
-                                    '/task_form',
+                                    Constants.taskFormRoute,
                                     arguments: {
-                                      'userId': widget.userId,
-                                      'task': task,
+                                      Constants.userId: widget.userId,
+                                      Constants.task: task,
                                     },
                                   );
                                 },
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
                                 onPressed: () {
                                   BlocProvider.of<TaskBloc>(context).add(
                                     DeleteTaskEvent(task.id, widget.userId),
@@ -143,20 +149,18 @@ class _TaskListState extends State<TaskList> {
               },
             );
           } else if (state is TaskError) {
-            return Center(child: Text("Error: ${state.message}"));
+            return Center(child: Text("${Constants.error}${state.message}"));
           }
-          return const Center(child: Text("Unexpected state."));
+          return const Center(child: Text(Constants.unExpectedState));
         },
       ),
       floatingActionButton: FloatingActionButton(
-         key: const Key('addTaskButton'),
+        key: const Key(Constants.addTaskButton),
         onPressed: () async {
-         final result= await Navigator.pushNamed(
-          context, 
-          '/task_form', 
-          arguments: {'userId': widget.userId}
-          );
-          if(result == true){
+          final result = await Navigator.pushNamed(
+              context, Constants.taskFormRoute,
+              arguments: {Constants.userId: widget.userId});
+          if (result == true) {
             context.read<TaskBloc>().add(LoadTasksEvent(widget.userId));
           }
         },
@@ -167,13 +171,13 @@ class _TaskListState extends State<TaskList> {
 
   Widget _buildPriorityIndicator(String priority) {
     switch (priority.toLowerCase()) {
-      case 'high':
-        return CircleAvatar(backgroundColor: Colors.red, radius: 5);
-      case 'medium':
-        return CircleAvatar(backgroundColor: Colors.orange, radius: 5);
-      case 'low':
+      case Constants.priorityHigh:
+        return const CircleAvatar(backgroundColor: Colors.red, radius: 5);
+      case Constants.priorityMedium:
+        return const CircleAvatar(backgroundColor: Colors.orange, radius: 5);
+      case Constants.priorityLow:
       default:
-        return CircleAvatar(backgroundColor: Colors.green, radius: 5);
+        return const CircleAvatar(backgroundColor: Colors.green, radius: 5);
     }
   }
 
@@ -186,18 +190,18 @@ class _TaskListState extends State<TaskList> {
         children: [
           const Divider(),
           Text(
-            "Title: ${task.title}",
+            "${Constants.titleList}${task.title}",
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            "Description: ${task.description ?? 'No description provided'}",
+            "${Constants.descriptionList}${task.description?.isNotEmpty == true ? task.description : Constants.noTaskDescriptionProvided}",
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
           if (task.dueDate.isBefore(DateTime.now()))
             Text(
-              "Overdue by: $overdueHours hours",
+              "${Constants.overdueByList}$overdueHours ${Constants.hours}",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.red.shade700,
@@ -205,23 +209,23 @@ class _TaskListState extends State<TaskList> {
               ),
             ),
           Text(
-            "Priority: ${task.priority}",
+            "${Constants.priorityList}${task.priority}",
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
           Text(
-            "Due Date: ${task.dueDate.toLocal().toString().split(' ')[0]}",
+            "${Constants.dueDateList}${task.dueDate.toLocal().toString().split(' ')[0]}",
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
-          Text(
-            "Task ID: ${task.id}",
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          Text(
-            "User ID: ${task.userId}",
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
-          ),
+          // Text(
+          //   "Task ID: ${task.id}",
+          //   style: const TextStyle(fontSize: 16, color: Colors.grey),
+          // ),
+          // Text(
+          //   "User ID: ${task.userId}",
+          //   style: const TextStyle(fontSize: 16, color: Colors.grey),
+          // ),
         ],
       ),
     );
