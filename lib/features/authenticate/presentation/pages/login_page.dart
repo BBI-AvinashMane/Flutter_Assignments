@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constant_colors.dart';
 import 'package:task_manager_firebase/core/utils/constants.dart';
+import 'package:task_manager_firebase/core/utils/text_style.dart';
 import '../bloc/authenticate_bloc.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -20,7 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.loginScreenTitle),key: const Key(Constants.appBarLoginTitle),
+        title: const Text(Constants.loginScreenTitle),
+        key: const Key(Constants.appBarLoginTitle),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               const Text(
                 Constants.userIDInput,
-                style: TextStyle(fontSize: 16),
+                style: AppTextStyles.subtitleStyle,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -50,18 +52,25 @@ class _LoginPageState extends State<LoginPage> {
                   // if (!value.startsWith('user_')) {
                   //   return 'User ID must start with "user_"';
                   // }
-                   return null;
-                 },
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               BlocConsumer<AuthenticateBloc, AuthenticateState>(
                 listener: (context, state) {
                   if (state is AuthenticateError) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
+                      SnackBar(
+                        content: Text(
+                          state.message,
+                          style: AppTextStyles.errorStyle,
+                        ),
+                        backgroundColor: AppColors.whiteText,
+                      ),
                     );
                   } else if (state is AuthenticateSuccess) {
-                    Navigator.pushReplacementNamed(context, Constants.tasksRoute,
+                    Navigator.pushReplacementNamed(
+                        context, Constants.tasksRoute,
                         arguments: state.userId);
                   }
                 },
@@ -72,11 +81,12 @@ class _LoginPageState extends State<LoginPage> {
                   return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                       key: const Key(Constants.loginButtonKey),
+                      key: const Key(Constants.loginButtonKey),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           BlocProvider.of<AuthenticateBloc>(context).add(
-                            LoginUserEvent(userId: _userIdController.text.trim()),
+                            LoginUserEvent(
+                                userId: _userIdController.text.trim()),
                           );
                         }
                       },

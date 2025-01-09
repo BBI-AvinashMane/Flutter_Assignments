@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constant_colors.dart';
 import 'package:task_manager_firebase/core/utils/constants.dart';
+import 'package:task_manager_firebase/core/utils/text_style.dart';
 import '../bloc/authenticate_bloc.dart';
 
 class AuthenticatePage extends StatelessWidget {
@@ -10,7 +12,8 @@ class AuthenticatePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.authenticationTitle),
+        title: const Text(Constants.authenticationTitle,style: AppTextStyles.titleStyle,),
+        
       ),
       body: Center(
         child: Column(
@@ -18,11 +21,7 @@ class AuthenticatePage extends StatelessWidget {
           children: [
             BlocConsumer<AuthenticateBloc, AuthenticateState>(
               listener: (context, state) {
-                if (state is AuthenticateError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
-                } else if (state is AuthenticateSuccess) {
+                if (state is AuthenticateSuccess) {
                   Navigator.pushReplacementNamed(
                     context,
                     Constants.tasksRoute,

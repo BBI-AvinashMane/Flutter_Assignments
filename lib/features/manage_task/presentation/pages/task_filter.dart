@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_manager_firebase/core/utils/constant_colors.dart';
 import 'package:task_manager_firebase/core/utils/constants.dart';
 
 class TaskFilterPage extends StatefulWidget {
@@ -84,7 +85,7 @@ class _TaskFilterPageState extends State<TaskFilterPage> {
             },
             child: const Text(
               Constants.resetFilters,
-              style: TextStyle(color: Color.fromARGB(255, 245, 30, 6)),
+              style: TextStyle(color:AppColors.resetFilterText ),
             ),
           ),
         ],

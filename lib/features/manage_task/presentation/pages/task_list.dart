@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_manager_firebase/core/utils/constant_colors.dart';
 import 'package:task_manager_firebase/core/utils/constants.dart';
 import '../widgets/menu_drawer.dart';
 import '../bloc/task_bloc.dart';
@@ -85,15 +86,16 @@ class _TaskListState extends State<TaskList> {
                     margin:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: isExpanded ? Colors.blue.shade50 : Colors.white,
+                      color: isExpanded ?  AppColors.expandedTask: AppColors.taskBackgroundColor,
                       border: task.dueDate.isBefore(DateTime.now())
-                          ? Border.all(color: Colors.red, width: 2)
+                          ? Border.all(color: AppColors.errorColor, width: 2)
                           : null,
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: task.dueDate.isBefore(DateTime.now())
                           ? [
                               BoxShadow(
-                                color: Colors.red.withOpacity(0.3),
+                               // color: AppColors.errorColor,
+                                color: AppColors.errorColor.withAlpha((0.3 * 255).toInt()),
                                 blurRadius: 8,
                                 spreadRadius: 2,
                                 offset: const Offset(0, 3),
@@ -117,7 +119,7 @@ class _TaskListState extends State<TaskList> {
                             children: [
                               IconButton(
                                 icon:
-                                    const Icon(Icons.edit, color: Colors.blue),
+                                    const Icon(Icons.edit, color: AppColors.editIconColor),
                                 onPressed: () {
                                   Navigator.pushNamed(
                                     context,
@@ -172,12 +174,12 @@ class _TaskListState extends State<TaskList> {
   Widget _buildPriorityIndicator(String priority) {
     switch (priority.toLowerCase()) {
       case Constants.priorityHigh:
-        return const CircleAvatar(backgroundColor: Colors.red, radius: 5);
+        return const CircleAvatar(backgroundColor:AppColors.highPriority, radius: 5);
       case Constants.priorityMedium:
-        return const CircleAvatar(backgroundColor: Colors.orange, radius: 5);
+        return const CircleAvatar(backgroundColor:AppColors.mediumPriority, radius: 5);
       case Constants.priorityLow:
       default:
-        return const CircleAvatar(backgroundColor: Colors.green, radius: 5);
+        return const CircleAvatar(backgroundColor: AppColors.lowPriority, radius: 5);
     }
   }
 
@@ -204,7 +206,7 @@ class _TaskListState extends State<TaskList> {
               "${Constants.overdueByList}$overdueHours ${Constants.hours}",
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.red.shade700,
+                color: AppColors.overDueHoursText,
                 fontWeight: FontWeight.bold,
               ),
             ),
