@@ -2,7 +2,7 @@ class Profile {
   final String username;
   final String address;
   final String mobileNumber;
-  final String alternateMobileNumber;
+  String? alternateMobileNumber;
   final String email;
   final String profileImageUrl;
 
@@ -10,7 +10,7 @@ class Profile {
     required this.username,
     required this.address,
     required this.mobileNumber,
-    required this.alternateMobileNumber,
+    this.alternateMobileNumber,
     required this.email,
     required this.profileImageUrl,
   });

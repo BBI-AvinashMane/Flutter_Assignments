@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:purchaso/features/product/presentation/pages/home_page.dart';
+import 'package:purchaso/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:purchaso/features/profile/presentation/bloc/profile_state.dart';
+import 'package:purchaso/features/profile/presentation/pages/select_profile_image_page.dart';
 import 'package:purchaso/service_locator.dart';
 import 'features/authentication/presentation/pages/login_page.dart';
 import 'features/authentication/presentation/pages/signup_page.dart';
@@ -25,7 +28,11 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (context) => serviceLocator<AuthBloc>()..add(AppStartedEvent()),
+          create: (context) =>
+              serviceLocator<AuthBloc>()..add(AppStartedEvent()),
+        ),
+        BlocProvider<ProfileBloc>(
+          create: (context) => serviceLocator<ProfileBloc>(),
         ),
       ],
       child: MaterialApp(
@@ -35,7 +42,7 @@ class MyApp extends StatelessWidget {
         // home: const AuthHandler(),
         initialRoute: '/',
         routes: {
-         '/': (context) => const AuthHandler(),
+          '/': (context) => const AuthHandler(),
           '/login': (context) => const LoginPage(),
           '/signup': (context) => const SignupPage(),
           '/profile': (context) => BlocBuilder<AuthBloc, AuthState>(
@@ -46,6 +53,11 @@ class MyApp extends StatelessWidget {
                   return const LoginPage();
                 },
               ),
+          '/select-profile-image': (context) {
+            final onImageSelected =
+                ModalRoute.of(context)!.settings.arguments as Function(String);
+            return SelectProfileImagePage(onImageSelected: onImageSelected);
+          },
           '/home': (context) => HomePage(
                 username: ModalRoute.of(context)!.settings.arguments as String,
               ),
@@ -54,7 +66,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 class AuthHandler extends StatelessWidget {
   const AuthHandler({Key? key}) : super(key: key);
@@ -65,7 +76,11 @@ class AuthHandler extends StatelessWidget {
       listener: (context, state) {
         // Navigation based on states
         if (state is AuthAuthenticated) {
-          Navigator.pushReplacementNamed(context, '/profile',arguments: state.user.username,);
+          Navigator.pushReplacementNamed(
+            context,
+            '/profile',
+            arguments: state.user.username,
+          );
         } else if (state is AuthLoggedOut) {
           Navigator.pushReplacementNamed(context, '/login');
         } else if (state is AuthError) {
@@ -82,15 +97,14 @@ class AuthHandler extends StatelessWidget {
           );
         } else if (state is AuthAuthenticated) {
           return ProfilePage(email: state.user.email);
-        } 
-        else if (state is AuthLoggedOut || state is AuthInitial) {
+        } else if (state is AuthLoggedOut || state is AuthInitial) {
           return const LoginPage();
-        } 
-        else if (state is AuthError) {
-          return const LoginPage(); 
+        } else if (state is AuthError) {
+          return const LoginPage();
         } else {
           return const Scaffold(
-            body: Center(child: Text('Unexpected state! Please restart the app.')),
+            body: Center(
+                child: Text('Unexpected state! Please restart the app.')),
           );
         }
       },

@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 import '../../domain/entities/profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import 'profile_event.dart';
@@ -51,4 +51,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       },
     );
   }
+
+  @override
+void onTransition(Transition<ProfileEvent, ProfileState> transition) {
+  super.onTransition(transition);
+  debugPrint('State Transition: ${transition.currentState} -> ${transition.nextState}');
+}
 }

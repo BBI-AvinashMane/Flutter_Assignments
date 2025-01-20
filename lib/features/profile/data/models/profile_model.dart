@@ -5,7 +5,7 @@ class ProfileModel extends Profile {
     required String username,
     required String address,
     required String mobileNumber,
-    required String alternateMobileNumber,
+    String? alternateMobileNumber,
     required String email,
     required String profileImageUrl,
   }) : super(
@@ -23,7 +23,7 @@ class ProfileModel extends Profile {
       'username': username,
       'address': address,
       'mobileNumber': mobileNumber,
-      'alternateMobileNumber': alternateMobileNumber,
+     if (alternateMobileNumber != null) 'alternateMobileNumber': alternateMobileNumber,
       'email': email,
       'profileImageUrl': profileImageUrl,
     };
