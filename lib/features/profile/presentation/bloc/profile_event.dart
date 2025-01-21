@@ -23,3 +23,11 @@ class FetchProfileEvent extends ProfileEvent {
 
   FetchProfileEvent({required this.email});
 }
+
+class ResetProfileEvent extends ProfileEvent {}
+
+class CheckProfileCompletionEvent extends ProfileEvent {
+  final String email;
+
+  CheckProfileCompletionEvent({required this.email});
+}

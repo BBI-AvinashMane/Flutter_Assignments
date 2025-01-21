@@ -19,3 +19,10 @@ class ProfileError extends ProfileState {
 
   ProfileError({required this.error});
 }
+
+class ProfileCompletionChecked extends ProfileState {
+  final bool isProfileComplete;
+
+  ProfileCompletionChecked({required this.isProfileComplete});
+}
+

@@ -1,37 +1,3 @@
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// import '../models/profile_model.dart';
-
-// class ProfileRemoteDataSource {
-//   final FirebaseFirestore firestore;
-
-//   ProfileRemoteDataSource({required this.firestore});
-
-//    Future<void> updateProfileImage(String userId, String imageUrl) async {
-//     await firestore.collection('users').doc(userId).update({'profileImage': imageUrl});
-//   }
-
-//   /// Save or Update Profile Data
-//   Future<void> saveOrUpdateProfile(ProfileModel profileModel) async {
-//     await firestore.collection('profiles').doc(profileModel.email).set(
-//           profileModel.toMap(),
-//           SetOptions(merge: true),
-//         );
-//   }
-
-//   /// Fetch Profile Data
-//   Future<ProfileModel?> fetchProfile(String email) async {
-//     final doc = await firestore.collection('profiles').doc(email).get();
-
-//     if (doc.exists) {
-//       return ProfileModel.fromMap(doc.data()!);
-//     }
-//     return null;
-//   }
-// }
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:purchaso/features/profile/data/models/profile_model.dart';
 
@@ -54,20 +20,43 @@ class ProfileRemoteDataSource {
   }
 
   /// Save or Update Profile Data
-  Future<void> saveOrUpdateProfile(ProfileModel profileModel) async {
-    if (profileModel.email.isEmpty) {
-      throw Exception('Email is required to save or update profile.');
-    }
+  // Future<void> saveOrUpdateProfile(ProfileModel profileModel) async {
+  //   if (profileModel.email.isEmpty) {
+  //     throw Exception('Email is required to save or update profile.');
+  //   }
 
-    try {
-      await firestore.collection('profiles').doc(profileModel.email).set(
-            profileModel.toMap(),
-            SetOptions(merge: true),
-          );
-    } catch (e) {
-      throw Exception('Failed to save or update profile: $e');
-    }
+  //   try {
+  //     await firestore.collection('profiles').doc(profileModel.email).set(
+  //           profileModel.toMap(),
+  //           SetOptions(merge: true),
+  //         );
+  //   } catch (e) {
+  //     throw Exception('Failed to save or update profile: $e');
+  //   }
+  // }
+  Future<void> saveOrUpdateProfile(ProfileModel profileModel) async {
+  if (profileModel.email.isEmpty) {
+    throw Exception('Email is required to save or update profile.');
   }
+
+  // Validate mandatory fields
+  if (profileModel.username.isEmpty || profileModel.address.isEmpty) {
+    throw Exception('Username and address are required to save or update profile.');
+  }
+
+  try {
+    print('Saving profile for email: ${profileModel.email}'); // Debug logging
+
+    await firestore.collection('profiles').doc(profileModel.email).set(
+          profileModel.toMap(),
+          SetOptions(merge: true), // Merge to avoid overwriting existing fields
+        );
+
+    print('Profile saved successfully for email: ${profileModel.email}'); // Success log
+  } catch (e) {
+    throw Exception('Failed to save or update profile: $e');
+  }
+}
 
   /// Fetch Profile Data
   Future<ProfileModel?> fetchProfile(String email) async {

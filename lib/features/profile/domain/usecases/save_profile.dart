@@ -18,6 +18,7 @@ class SaveOrUpdateProfile {
           : null, // Handle optional field
       email: profile.email,
       profileImageUrl: profile.profileImageUrl,
+      isProfileComplete: profile.isProfileComplete,
     );
 
     return repository.saveOrUpdateProfile(updatedProfile);

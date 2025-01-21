@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purchaso/features/authentication/domain/entities/user.dart';
 import 'package:purchaso/features/authentication/presentation/bloc/auth_event.dart';
 import 'package:purchaso/features/authentication/presentation/bloc/auth_state.dart';
+import 'package:purchaso/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:purchaso/features/profile/presentation/bloc/profile_event.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -50,10 +52,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 //       emit(AuthInitial());
 //     }
 //   }
+
+
 Future<void> _handleAppStartedEvent(
   AppStartedEvent event,
   Emitter<AuthState> emit,
 ) async {
+
+  print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   debugPrint("AppStartedEvent triggered");
   emit(AuthLoading());
   final prefs = await SharedPreferences.getInstance();
@@ -97,6 +103,7 @@ Future<void> _handleAppStartedEvent(
     (user)  async{
       print("Login successful for user: ${user.email}");
       await _saveUserToPreferences(user);
+      // BlocProvider.of<ProfileBloc>(context).add(ResetProfileEvent());
       emit(AuthAuthenticated(user));
     },
   );

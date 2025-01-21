@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purchaso/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:purchaso/features/authentication/presentation/bloc/auth_event.dart';
+import 'package:purchaso/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:purchaso/features/profile/presentation/bloc/profile_event.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
@@ -76,6 +78,7 @@ class HomePage extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () {
                   BlocProvider.of<AuthBloc>(context).add(LogoutEvent());
+                  BlocProvider.of<ProfileBloc>(context).add(ResetProfileEvent());
                   Navigator.pushReplacementNamed(context, '/login');
                 },
                 style: ElevatedButton.styleFrom(

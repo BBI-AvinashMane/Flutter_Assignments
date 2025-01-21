@@ -95,6 +95,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         alternateMobileNumber: profile.alternateMobileNumber,
         email: profile.email,
         profileImageUrl: profile.profileImageUrl,
+        isProfileComplete: profile.isProfileComplete,
       );
       await remoteDataSource.saveOrUpdateProfile(profileModel);
       return const Right(null);

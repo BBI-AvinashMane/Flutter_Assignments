@@ -11,28 +11,55 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({required this.profileRepository}) : super(ProfileInitial()) {
     on<SaveProfileEvent>(_onSaveProfileEvent);
     on<FetchProfileEvent>(_onFetchProfileEvent);
+    on<ResetProfileEvent>(_onResetProfileEvent);
+    on<CheckProfileCompletionEvent>(_onCheckProfileCompletionEvent);
   }
+
+  // Future<void> _onSaveProfileEvent(
+  //   SaveProfileEvent event,
+  //   Emitter<ProfileState> emit,
+  // ) async {
+  //   emit(ProfileLoading());
+  //   final profile = Profile(
+  //     username: event.username,
+  //     address: event.address,
+  //     mobileNumber: event.mobileNumber,
+  //     alternateMobileNumber: event.alternateMobileNumber,
+  //     email: event.email,
+  //     profileImageUrl: event.profileImageUrl,
+  //     isProfileComplete: true,
+  //   );
+
+  //   final result = await profileRepository.saveOrUpdateProfile(profile);
+  //   result.fold(
+  //     (exception) => emit(ProfileError(error: exception.toString())),
+  //     (_) => emit(ProfileSaved()),
+  //   );
+  // }
 
   Future<void> _onSaveProfileEvent(
-    SaveProfileEvent event,
-    Emitter<ProfileState> emit,
-  ) async {
-    emit(ProfileLoading());
-    final profile = Profile(
-      username: event.username,
-      address: event.address,
-      mobileNumber: event.mobileNumber,
-      alternateMobileNumber: event.alternateMobileNumber,
-      email: event.email,
-      profileImageUrl: event.profileImageUrl,
-    );
+    SaveProfileEvent event, Emitter<ProfileState> emit) async {
+  emit(ProfileLoading());
 
-    final result = await profileRepository.saveOrUpdateProfile(profile);
-    result.fold(
-      (exception) => emit(ProfileError(error: exception.toString())),
-      (_) => emit(ProfileSaved()),
-    );
-  }
+  final profile = Profile(
+    username: event.username,
+    address: event.address,
+    mobileNumber: event.mobileNumber,
+    alternateMobileNumber: event.alternateMobileNumber,
+    email: event.email,
+    profileImageUrl: event.profileImageUrl,
+    isProfileComplete: true,
+  );
+
+  final result = await profileRepository.saveOrUpdateProfile(profile);
+  result.fold(
+    (exception) => emit(ProfileError(error: exception.toString())),
+    (_) {
+      emit(ProfileSaved());
+      add(CheckProfileCompletionEvent(email: event.email));
+    },
+  );
+}
 
   Future<void> _onFetchProfileEvent(
     FetchProfileEvent event,
@@ -52,9 +79,36 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     );
   }
 
+  Future<void> _onResetProfileEvent(
+    ResetProfileEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(ProfileInitial()); // Reset to the initial state
+  }
+
   @override
-void onTransition(Transition<ProfileEvent, ProfileState> transition) {
-  super.onTransition(transition);
-  debugPrint('State Transition: ${transition.currentState} -> ${transition.nextState}');
-}
+  void onTransition(Transition<ProfileEvent, ProfileState> transition) {
+    super.onTransition(transition);
+    debugPrint(
+        'State Transition: ${transition.currentState} -> ${transition.nextState}');
+  }
+
+  Future<void> _onCheckProfileCompletionEvent(
+    CheckProfileCompletionEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    //emit(ProfileLoading());
+    final result = await profileRepository.fetchProfile(event.email);
+
+    result.fold(
+      (error) => emit(ProfileError(error: error.toString())),
+      (profile) {
+        if (profile != null && profile.isProfileComplete) {
+          emit(ProfileCompletionChecked(isProfileComplete: true));
+        } else {
+          emit(ProfileCompletionChecked(isProfileComplete: false));
+        }
+      },
+    );
+  }
 }
