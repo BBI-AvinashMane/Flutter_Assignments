@@ -26,3 +26,8 @@ class ProfileCompletionChecked extends ProfileState {
   ProfileCompletionChecked({required this.isProfileComplete});
 }
 
+class ProfileNotExist extends ProfileState{
+  String email;
+  ProfileNotExist({required this.email});
+}
+

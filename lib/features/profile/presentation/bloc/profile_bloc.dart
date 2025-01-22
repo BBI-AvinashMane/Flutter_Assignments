@@ -15,28 +15,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<CheckProfileCompletionEvent>(_onCheckProfileCompletionEvent);
   }
 
-  // Future<void> _onSaveProfileEvent(
-  //   SaveProfileEvent event,
-  //   Emitter<ProfileState> emit,
-  // ) async {
-  //   emit(ProfileLoading());
-  //   final profile = Profile(
-  //     username: event.username,
-  //     address: event.address,
-  //     mobileNumber: event.mobileNumber,
-  //     alternateMobileNumber: event.alternateMobileNumber,
-  //     email: event.email,
-  //     profileImageUrl: event.profileImageUrl,
-  //     isProfileComplete: true,
-  //   );
-
-  //   final result = await profileRepository.saveOrUpdateProfile(profile);
-  //   result.fold(
-  //     (exception) => emit(ProfileError(error: exception.toString())),
-  //     (_) => emit(ProfileSaved()),
-  //   );
-  // }
-
   Future<void> _onSaveProfileEvent(
     SaveProfileEvent event, Emitter<ProfileState> emit) async {
   emit(ProfileLoading());
@@ -65,15 +43,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     FetchProfileEvent event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileLoading());
+    // emit(ProfileLoading());
     final result = await profileRepository.fetchProfile(event.email);
     result.fold(
-      (exception) => emit(ProfileError(error: exception.toString())),
+      (exception) {
+        emit(ProfileError(error: exception.toString()));
+      },
       (profile) {
         if (profile != null) {
           emit(ProfileLoaded(profile: profile));
-        } else {
-          emit(ProfileError(error: 'Profile not found.'));
         }
       },
     );
@@ -83,7 +61,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     ResetProfileEvent event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileInitial()); // Reset to the initial state
+    emit(ProfileInitial()); 
   }
 
   @override
@@ -97,7 +75,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     CheckProfileCompletionEvent event,
     Emitter<ProfileState> emit,
   ) async {
-    //emit(ProfileLoading());
+    
     final result = await profileRepository.fetchProfile(event.email);
 
     result.fold(

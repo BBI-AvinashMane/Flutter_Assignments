@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () {
               BlocProvider.of<AuthBloc>(context).add(LogoutEvent());
-              Navigator.pushReplacementNamed(context, '/login');
+              // Navigator.pushReplacementNamed(context, '/login');
             },
             tooltip: 'Logout',
           ),
@@ -79,7 +79,8 @@ class HomePage extends StatelessWidget {
                 onPressed: () {
                   BlocProvider.of<AuthBloc>(context).add(LogoutEvent());
                   BlocProvider.of<ProfileBloc>(context).add(ResetProfileEvent());
-                  Navigator.pushReplacementNamed(context, '/login');
+
+                  Navigator.pushNamed(context,"/");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,

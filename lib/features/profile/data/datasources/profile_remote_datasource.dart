@@ -19,21 +19,7 @@ class ProfileRemoteDataSource {
     }
   }
 
-  /// Save or Update Profile Data
-  // Future<void> saveOrUpdateProfile(ProfileModel profileModel) async {
-  //   if (profileModel.email.isEmpty) {
-  //     throw Exception('Email is required to save or update profile.');
-  //   }
 
-  //   try {
-  //     await firestore.collection('profiles').doc(profileModel.email).set(
-  //           profileModel.toMap(),
-  //           SetOptions(merge: true),
-  //         );
-  //   } catch (e) {
-  //     throw Exception('Failed to save or update profile: $e');
-  //   }
-  // }
   Future<void> saveOrUpdateProfile(ProfileModel profileModel) async {
   if (profileModel.email.isEmpty) {
     throw Exception('Email is required to save or update profile.');

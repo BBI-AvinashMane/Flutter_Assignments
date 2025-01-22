@@ -25,7 +25,7 @@ class LoginPage extends StatelessWidget {
                 // Logo
                 Center(
                   child: Image.asset(
-                    'assets/images/logo.png', // Replace with your logo asset
+                    'assets/images/logo.png', 
                     height: 200,
                   ),
                 ),

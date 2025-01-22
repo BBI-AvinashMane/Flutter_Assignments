@@ -126,6 +126,7 @@ class _SignupPageState extends State<SignupPage> {
                         const SnackBar(content: Text('Passwords do not match.')),
                       );
                     } else {
+                      Navigator.pop(context);
                       BlocProvider.of<AuthBloc>(context).add(
                         RegisterEvent(email, password),
                       );
