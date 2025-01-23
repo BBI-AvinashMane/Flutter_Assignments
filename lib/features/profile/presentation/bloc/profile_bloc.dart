@@ -81,11 +81,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     result.fold(
       (error) => emit(ProfileError(error: error.toString())),
       (profile) {
-        if (profile != null && profile.isProfileComplete) {
-          emit(ProfileCompletionChecked(isProfileComplete: true));
+        if (profile != null) {
+          emit(ProfileCompletionChecked(isProfileComplete: true,profile: profile));
         } else {
-          emit(ProfileCompletionChecked(isProfileComplete: false));
+          emit(ProfileCompletionChecked(isProfileComplete: false, profile: Profile(username: "", address: "", mobileNumber:"" , email:"" , profileImageUrl:"" , isProfileComplete:false) ));
         }
+  
       },
     );
   }

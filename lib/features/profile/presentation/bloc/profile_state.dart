@@ -22,8 +22,8 @@ class ProfileError extends ProfileState {
 
 class ProfileCompletionChecked extends ProfileState {
   final bool isProfileComplete;
-
-  ProfileCompletionChecked({required this.isProfileComplete});
+  final Profile profile;
+  ProfileCompletionChecked({required this.isProfileComplete,required this.profile});
 }
 
 class ProfileNotExist extends ProfileState{

@@ -9,8 +9,9 @@ import 'select_profile_image_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final String email;
+   final bool showSkipButton;
 
-  const ProfilePage({required this.email, Key? key}) : super(key: key);
+  const ProfilePage({required this.email,this.showSkipButton = true, Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -37,7 +38,8 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: const Text('Profile'),
         backgroundColor: Colors.black,
-        actions: [
+        actions: widget.showSkipButton
+      ? [
           TextButton(
             onPressed: () {
               Navigator.pushReplacementNamed(context, '/home', arguments: widget.email);
@@ -47,7 +49,8 @@ class _ProfilePageState extends State<ProfilePage> {
               style: TextStyle(color: Colors.white),
             ),
           ),
-        ],
+        ]
+      : null,
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {

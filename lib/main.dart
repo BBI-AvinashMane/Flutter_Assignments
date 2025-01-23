@@ -122,6 +122,9 @@ class AuthHandler extends StatelessWidget {
                   return ProfilePage(email: authState.user.email);
                 }
               } 
+              else if(profileState is ProfileLoaded){
+                return BottomNavigationPage(authState.user.email);
+              }
               return  Scaffold(
                   body: Center(child: CircularProgressIndicator()),
                 );
