@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purchaso/features/cart/presentation/pages/cart_page.dart';
 import 'package:purchaso/features/product/presentation/pages/product_list_page.dart';
 import 'package:purchaso/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:purchaso/features/profile/presentation/bloc/profile_event.dart';
@@ -7,7 +8,6 @@ import 'package:purchaso/features/profile/presentation/bloc/profile_state.dart';
 import 'package:purchaso/features/profile/presentation/pages/profile_details_page.dart';
 import 'package:purchaso/features/profile/presentation/pages/profile_page.dart';
 import 'package:purchaso/features/product/presentation/pages/wishlist_page.dart';
-import 'package:purchaso/features/product/presentation/pages/cart_page.dart';
 
 class BottomNavigationPage extends StatefulWidget {
   final String email;
@@ -22,13 +22,6 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-  //   if (index == 3) { // Profile tab index
-  //   final profileBloc = BlocProvider.of<ProfileBloc>(context);
-
-  //   if (profileBloc.state is ProfileCompletionChecked) {
-  //     profileBloc.add(FetchProfileEvent(email: widget.email)); // Trigger profile fetch
-  //   }
-  // }
     setState(() {
       _selectedIndex = index;
     });
@@ -40,7 +33,6 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
       ProductPage(),
       WishlistPage(),
       CartPage(),
-      // ProfilePage(email: widget.email),
      BlocBuilder<ProfileBloc, ProfileState>(
     builder: (context, state) {
       print("bottom nav");

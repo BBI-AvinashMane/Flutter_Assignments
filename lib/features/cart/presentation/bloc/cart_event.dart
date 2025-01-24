@@ -1,25 +1,24 @@
-
-
-import 'package:purchaso/features/cart/domain/entities/cart_item.dart';
-
 abstract class CartEvent {}
 
-class LoadCartEvent extends CartEvent {
-  final String userId;
+/// Fetch product details to populate map
+class GetProductEventForCart extends CartEvent {}
 
-  LoadCartEvent(this.userId);
+/// Load cart items for a user
+class GetCartEvent extends CartEvent {}
+
+/// Add an item to the cart
+class AddToCartEvent extends CartEvent {
+  final int productId;
+  final int quantity;
+
+  AddToCartEvent(this.productId, this.quantity);
 }
 
-class AddItemToCartEvent extends CartEvent {
-  final String userId;
-  final CartEntity cartItem;
+/// Remove an item from the cart
+class RemoveFromCartEvent extends CartEvent {
+  final int productId;
+  final int quantity;
 
-  AddItemToCartEvent(this.userId, this.cartItem);
+  RemoveFromCartEvent(this.productId, this.quantity);
 }
 
-class RemoveItemFromCartEvent extends CartEvent {
-  final String userId;
-  final CartEntity cartItem;
-
-  RemoveItemFromCartEvent(this.userId, this.cartItem);
-}

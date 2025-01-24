@@ -8,6 +8,7 @@ class AddToCart {
   AddToCart(this.repository);
 
   Future<Either<Exception, void>> call(String userId, CartEntity cartItem) async {
+    print("adding in use case");
     return await repository.addItemToCart(userId, cartItem);
   }
 }

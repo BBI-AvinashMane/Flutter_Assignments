@@ -64,12 +64,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(ProfileInitial()); 
   }
 
-  @override
-  void onTransition(Transition<ProfileEvent, ProfileState> transition) {
-    super.onTransition(transition);
-    debugPrint(
-        'State Transition: ${transition.currentState} -> ${transition.nextState}');
-  }
+  // @override
+  // void onTransition(Transition<ProfileEvent, ProfileState> transition) {
+  //   super.onTransition(transition);
+  //   debugPrint(
+  //       'State Transition: ${transition.currentState} -> ${transition.nextState}');
+  // }
 
   Future<void> _onCheckProfileCompletionEvent(
     CheckProfileCompletionEvent event,

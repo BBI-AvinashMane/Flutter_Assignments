@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:purchaso/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:purchaso/features/cart/presentation/bloc/cart_event.dart';
 import 'package:purchaso/features/product/presentation/bloc/product_bloc.dart';
 
 class ProductDetailsPage extends StatelessWidget {
@@ -125,6 +127,23 @@ class ProductDetailsPage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Handle "Shop Now" action
+                  final cartBloc = BlocProvider.of<CartBloc>(context);
+
+  // Dispatch the AddToCartEvent
+  cartBloc.add(
+    AddToCartEvent(
+       product.id, // Pass the product ID
+      1, // Default quantity to 1 for "Shop Now"
+    ),
+  );
+
+  // Show a snackbar to inform the user
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('${product.title} added to cart!'),
+      duration: Duration(seconds: 2),
+    ),
+  );
                 },
                 style: ElevatedButton.styleFrom(
                   padding:

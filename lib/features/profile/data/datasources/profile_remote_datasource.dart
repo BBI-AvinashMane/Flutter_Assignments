@@ -31,14 +31,10 @@ class ProfileRemoteDataSource {
   }
 
   try {
-    print('Saving profile for email: ${profileModel.email}'); // Debug logging
-
     await firestore.collection('profiles').doc(profileModel.email).set(
           profileModel.toMap(),
           SetOptions(merge: true), // Merge to avoid overwriting existing fields
         );
-
-    print('Profile saved successfully for email: ${profileModel.email}'); // Success log
   } catch (e) {
     throw Exception('Failed to save or update profile: $e');
   }

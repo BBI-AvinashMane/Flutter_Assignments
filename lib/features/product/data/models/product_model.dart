@@ -4,13 +4,14 @@ import 'package:purchaso/features/product/domain/entities/product.dart';
 
 
 class ProductModel extends ProductEntity {
-  const ProductModel({
+   ProductModel({
     required int id,
     required String title,
     required double price,
     required String description,
     required String image,
     required double rating,
+     bool isFavorite = false,
   }) : super(
           id: id,
           title: title,
@@ -18,6 +19,7 @@ class ProductModel extends ProductEntity {
           description: description,
           image: image,
           rating: rating,
+          isFavorite: isFavorite,
         );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class ProductModel extends ProductEntity {
       description: json['description'],
       image: json['thumbnail'],
       rating: (json['rating'] as num).toDouble(),
+      isFavorite: json['isFavorite'] ?? false,
     );
   }
 

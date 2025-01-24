@@ -9,3 +9,13 @@ class GetProductDetailsEvent extends ProductEvent {
 
   GetProductDetailsEvent(this.productId);
 }
+
+class ToggleFavoriteEvent extends ProductEvent {
+  final int productId;
+
+  ToggleFavoriteEvent(this.productId);
+}
+
+class LoadFavoriteProductsIdEvent extends ProductEvent {}
+
+class ClearProductListEvent extends ProductEvent{}

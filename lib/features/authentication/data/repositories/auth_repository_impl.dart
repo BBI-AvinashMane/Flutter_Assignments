@@ -12,11 +12,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Exception, User>> login(String email, String password) async {
     try {
-       print("Attempting login for email: $email");
       final user = await remoteDataSource.loginWithEmailAndPassword(email, password);
       return Right(User(email: user.email!, username: user.email!.split('@')[0]));
     } catch (e) {
-      print("Login repository error: $e");
       return Left(Exception('Login failed: $e'));
     }
   }

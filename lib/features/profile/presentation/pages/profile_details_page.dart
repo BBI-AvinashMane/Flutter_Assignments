@@ -132,9 +132,7 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
                 Navigator.pop(context); // Close the dialog
                 BlocProvider.of<AuthBloc>(context).add(LogoutEvent());
                 BlocProvider.of<ProfileBloc>(context).add(ResetProfileEvent());
-
-                  Navigator.pushNamed(context,"/");
-               
+                Navigator.pushNamed(context,"/");
               },
               child: const Text('Logout'),
             ),

@@ -5,13 +5,15 @@ class ProductEntity {
   final String description;
   final String image;
   final double rating;
+  bool isFavorite;
 
-  const ProductEntity({
+   ProductEntity({
     required this.id,
     required this.title,
     required this.price,
     required this.description,
     required this.image,
     required this.rating,
+     this.isFavorite = false,
   });
 }

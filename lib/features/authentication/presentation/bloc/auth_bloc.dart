@@ -59,8 +59,7 @@ Future<void> _handleAppStartedEvent(
   Emitter<AuthState> emit,
 ) async {
 
-  print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  debugPrint("AppStartedEvent triggered");
+ 
   emit(AuthLoading());
   final prefs = await SharedPreferences.getInstance();
   try {
@@ -70,19 +69,19 @@ Future<void> _handleAppStartedEvent(
       final email = prefs.getString('email') ?? '';
       final username = prefs.getString('username') ?? '';
       if (email.isNotEmpty && state is! AuthAuthenticated) {
-        debugPrint("Restoring Authenticated State for: $username");
+        // debugPrint("Restoring Authenticated State for: $username");
         await Future.delayed(Duration.zero); // Ensure proper state handling
         emit(AuthAuthenticated(User(email: email, username: username)));
       } else {
-        debugPrint("Incomplete user data or already authenticated.");
+        // debugPrint("Incomplete user data or already authenticated.");
         emit(AuthInitial());
       }
     } else {
-      debugPrint("No user logged in, emitting AuthInitial");
+      // debugPrint("No user logged in, emitting AuthInitial");
       emit(AuthInitial());
     }
   } catch (e) {
-    debugPrint("Error accessing SharedPreferences: $e");
+    // debugPrint("Error accessing SharedPreferences: $e");
     emit(AuthError("Failed to load user data"));
   }
 }
@@ -92,16 +91,16 @@ Future<void> _handleAppStartedEvent(
   Emitter<AuthState> emit,
 ) async {
   emit(AuthLoading());
-  print("LoginEvent triggered with email: ${event.email}");
+  // print("LoginEvent triggered with email: ${event.email}");
   final result = await authRepository.login(event.email, event.password);
 
   await result.fold(
     (exception) async {
-      print("Login failed: $exception");
+      // print("Login failed: $exception");
       emit(AuthError('Login failed: ${exception.toString()}'));
     },
     (user)  async{
-      print("Login successful for user: ${user.email}");
+      // print("Login successful for user: ${user.email}");
       await _saveUserToPreferences(user);
       // BlocProvider.of<ProfileBloc>(context).add(ResetProfileEvent());
       emit(AuthAuthenticated(user));
@@ -115,7 +114,7 @@ Future<void> _handleAppStartedEvent(
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    print("registring user for you please dont show login page");
+    // print("registring user for you please dont show login page");
     final result = await authRepository.register(event.email, event.password);
 
     await result.fold(
@@ -184,11 +183,11 @@ Future<void> _handleAppStartedEvent(
   await prefs.setBool('isLoggedIn', true);
   await prefs.setString('email', user.email);
   await prefs.setString('username', user.username);
-  print("User saved in SharedPreferences: ${user.email}");
+  // print("User saved in SharedPreferences: ${user.email}");
 }
-@override
-void onTransition(Transition<AuthEvent, AuthState> transition) {
-  super.onTransition(transition);
-  debugPrint('State Transition: ${transition.currentState} -> ${transition.nextState}');
-}
+// @override
+// void onTransition(Transition<AuthEvent, AuthState> transition) {
+//   super.onTransition(transition);
+//   debugPrint('State Transition: ${transition.currentState} -> ${transition.nextState}');
+// }
 }

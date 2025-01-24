@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:purchaso/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:purchaso/features/cart/presentation/bloc/cart_event.dart';
 import 'package:purchaso/features/product/presentation/bloc/product_bloc.dart';
 import 'package:purchaso/features/product/presentation/pages/bottom_nav.dart';
 import 'package:purchaso/features/product/presentation/pages/home_page.dart';
@@ -40,6 +42,9 @@ class MyApp extends StatelessWidget {
         ),
          BlocProvider<ProductBloc>(
           create: (context) => serviceLocator<ProductBloc>(),
+        ),
+        BlocProvider<CartBloc>(
+          create: (context) => serviceLocator<CartBloc>()..add(GetProductEventForCart()),
         ),
       ],
       child: MaterialApp(
@@ -114,7 +119,7 @@ class AuthHandler extends StatelessWidget {
               }
             },
             builder: (context, profileState) {
-              print(" profile state in main ${profileState}");
+              // print(" profile state in main ${profileState}");
               if (profileState is ProfileCompletionChecked) {
                 if (profileState.isProfileComplete) {
                   return BottomNavigationPage(authState.user.email);
