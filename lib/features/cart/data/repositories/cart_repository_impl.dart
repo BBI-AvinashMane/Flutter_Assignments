@@ -11,11 +11,11 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<Either<Exception, void>> addItemToCart(String userId, CartEntity cartItem) async {
     try {
-      print("adding to repo impl");
+      
       await remoteDataSource.addItemToCart(userId, cartItem);
       return const Right(null);
     } catch (e) {
-      print("err in repo impl ${e}");
+      
       return Left(Exception(e.toString()));
     }
   }

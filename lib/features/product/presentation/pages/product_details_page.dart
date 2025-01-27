@@ -5,15 +5,13 @@ import 'package:purchaso/features/cart/presentation/bloc/cart_event.dart';
 import 'package:purchaso/features/product/presentation/bloc/product_bloc.dart';
 
 class ProductDetailsPage extends StatelessWidget {
-  final int productId;
+  final product;
 
-  const ProductDetailsPage({required this.productId, Key? key})
+  const ProductDetailsPage({required this.product, Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final product =
-        BlocProvider.of<ProductBloc>(context).getProductById(productId);
 
     if (product == null) {
       return Scaffold(
@@ -26,24 +24,25 @@ class ProductDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           product.title,
-          style: const TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         centerTitle: true,
         elevation: 1,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-         
-          onPressed: () {
-             BlocProvider.of<ProductBloc>(context).add(GetProductEvent());
-             Navigator.pop(context);
-          } 
-        ),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            }),
         actions: [
           IconButton(
-            icon: const Icon(Icons.favorite_border, color: Colors.black),
+            icon: Icon(
+              product.isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: product.isFavorite ? Colors.red : Colors.white,
+            ),
             onPressed: () {
-              // Handle wishlist action
+              BlocProvider.of<ProductBloc>(context)
+                  .add(ToggleFavoriteEvent(product.id));
             },
           ),
         ],
@@ -53,27 +52,25 @@ class ProductDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image with Carousel
             Center(
-              child: ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(20), // Rounded corners for the image
-                child: Image.network(
-                  product.image,
-                  height: 250,
-                  fit: BoxFit
-                      .cover, // Ensures the image fills the area appropriately
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.error,
-                        size: 100,
-                        color: Colors.red); // Fallback for image loading error
-                  },
+              child: Hero(
+                tag: 'product-${product.id}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    product.image,
+                    height: 250,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.error,
+                          size: 100, color: Colors.red);
+                    },
+                  ),
                 ),
               ),
             ),
 
             const SizedBox(height: 16),
-            // Product Title and Price
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -122,28 +119,24 @@ class ProductDetailsPage extends StatelessWidget {
               style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 24),
-            // Shop Now Button
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle "Shop Now" action
                   final cartBloc = BlocProvider.of<CartBloc>(context);
 
-  // Dispatch the AddToCartEvent
-  cartBloc.add(
-    AddToCartEvent(
-       product.id, // Pass the product ID
-      1, // Default quantity to 1 for "Shop Now"
-    ),
-  );
+                  cartBloc.add(
+                    AddToCartEvent(
+                      product.id,
+                      1,
+                    ),
+                  );
 
-  // Show a snackbar to inform the user
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('${product.title} added to cart!'),
-      duration: Duration(seconds: 2),
-    ),
-  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${product.title} added to cart!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   padding:
@@ -155,7 +148,10 @@ class ProductDetailsPage extends StatelessWidget {
                 ),
                 child: const Text(
                   "Shop Now",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ),
             ),

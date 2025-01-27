@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:purchaso/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:purchaso/features/cart/presentation/bloc/cart_event.dart';
+import 'package:purchaso/features/product/domain/entities/product.dart';
 import 'package:purchaso/features/product/presentation/bloc/product_bloc.dart';
 import 'package:purchaso/features/product/presentation/pages/bottom_nav.dart';
 import 'package:purchaso/features/product/presentation/pages/home_page.dart';
@@ -23,11 +24,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   setupServiceLocator(); 
-  runApp(const MyApp());
+  runApp( MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
+   MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +55,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(primarySwatch: Colors.blue),
         initialRoute: '/',
         routes: {
-          '/': (context) => const AuthHandler(),
+          '/': (context) =>  AuthHandler(),
           '/login': (context) => const LoginPage(),
           '/signup': (context) => const SignupPage(),
           '/home': (context) {
       final email = ModalRoute.of(context)!.settings.arguments as String;
-      return BottomNavigationPage(email);
+      return BottomNavigationPage(selectedIndexNotifier,email);
     },'/select-profile-image': (context) {
             final onImageSelected =
                 ModalRoute.of(context)!.settings.arguments as Function(String);
@@ -75,9 +77,9 @@ class MyApp extends StatelessWidget {
                 builder: (context) => ProfilePage(email: email));
           }
         else if (settings.name == '/product-details') {
-            final productId = settings.arguments as int;
+            final product = settings.arguments as ProductEntity;
             return MaterialPageRoute(
-              builder: (context) => ProductDetailsPage(productId: productId),
+              builder: (context) => ProductDetailsPage(product: product),
             );
           }
           return null;
@@ -88,7 +90,8 @@ class MyApp extends StatelessWidget {
 }
 
 class AuthHandler extends StatelessWidget {
-  const AuthHandler({Key? key}) : super(key: key);
+  final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
+   AuthHandler({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -122,13 +125,13 @@ class AuthHandler extends StatelessWidget {
               // print(" profile state in main ${profileState}");
               if (profileState is ProfileCompletionChecked) {
                 if (profileState.isProfileComplete) {
-                  return BottomNavigationPage(authState.user.email);
+                  return BottomNavigationPage(selectedIndexNotifier,authState.user.email);
                 } else {
                   return ProfilePage(email: authState.user.email);
                 }
               } 
               else if(profileState is ProfileLoaded){
-                return BottomNavigationPage(authState.user.email);
+                return BottomNavigationPage(selectedIndexNotifier,authState.user.email);
               }
               return  Scaffold(
                   body: Center(child: CircularProgressIndicator()),

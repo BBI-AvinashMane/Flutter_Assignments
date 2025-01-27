@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile',style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.black,
         actions: widget.showSkipButton
       ? [
