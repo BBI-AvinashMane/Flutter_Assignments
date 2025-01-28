@@ -1,76 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter/widgets.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:purchaso/features/product/presentation/bloc/product_bloc.dart';
-
-// class WishlistPage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text(
-//           'Wishlist',
-//           style: TextStyle(color: Colors.white),
-//         ),
-//         backgroundColor: Colors.black,
-//       ),
-//       body: _buildWishlist(context),
-//     );
-//   }
-
-//   Widget _buildWishlist(BuildContext context) {
-//     return BlocBuilder<ProductBloc, ProductState>(
-//       builder: (context, state) {
-//         if (state is ProductLoaded) {
-//           final favoriteProducts = state.products
-//               .where((product) => product.isFavorite)
-//               .toList();
-
-//           if (favoriteProducts.isEmpty) {
-//             return const Center(
-//               child: Text(
-//                 "Your Wishlist is empty!",
-//                 style: TextStyle(fontSize: 18, color: Colors.grey),
-//               ),
-//             );
-//           }
-
-//           return ListView.builder(
-//             itemCount: favoriteProducts.length,
-//             itemBuilder: (context, index) {
-//               final product = favoriteProducts[index];
-//               return ListTile(
-//                 leading: Image.network(
-//                   product.image,
-//                   width: 60,
-//                   height: 60,
-//                   fit: BoxFit.cover,
-//                 ),
-//                 title: Text(
-//                   product.title,
-//                   style: const TextStyle(fontWeight: FontWeight.bold),
-//                 ),
-//                 subtitle: Text('\$${product.price.toStringAsFixed(2)}'),
-//                 trailing: IconButton(
-//                   icon: const Icon(Icons.favorite, color: Colors.red),
-//                   onPressed: () {
-//                     BlocProvider.of<ProductBloc>(context).add(
-//                       ToggleFavoriteEvent(product.id),
-//                     );
-//                   },
-//                 ),
-//               );
-//             },
-//           );
-//         } else if (state is ProductLoading) {
-//           return const Center(child: CircularProgressIndicator());
-//         } else {
-//           return const Center(child: Text("Failed to load Wishlist."));
-//         }
-//       },
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -89,6 +16,7 @@ class WishlistPage extends StatefulWidget {
 class _WishlistPageState extends State<WishlistPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   late List products;
+  bool isAnimating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -188,26 +116,27 @@ class _WishlistPageState extends State<WishlistPage> {
     );
   }
 
-  // Remove Product with Animation
+  
   void _removeFromWishlist(BuildContext context, dynamic product, int index) {
     final removedProduct = products[index];
-
-    // Remove the product from the UI list
+    // if (isAnimating) return;
+   
     setState(() {
       products.removeAt(index);
     });
 
     _listKey.currentState?.removeItem(
       index,
-      (context, animation) =>
-          _buildWishlistCard(context, removedProduct, index, animation),
+      (context, animation) {
+        // isAnimating = false; 
+          return _buildWishlistCard(context, removedProduct, index, animation);
+          },
       duration: const Duration(milliseconds: 500),
     );
 
-    // Trigger Bloc event to update product state
     BlocProvider.of<ProductBloc>(context).add(ToggleFavoriteEvent(product.id));
 
-    // Show SnackBar with undo option
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -231,14 +160,13 @@ class _WishlistPageState extends State<WishlistPage> {
     );
   }
 
-  // Empty Wishlist UI
   Widget _buildEmptyWishlist() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Lottie.asset(
-            'assets/animations/empty_box.json', // Add your Lottie animation file
+            'assets/animations/empty_box.json', 
             height: 200,
             width: 200,
           ),
@@ -253,7 +181,6 @@ class _WishlistPageState extends State<WishlistPage> {
             onPressed: () {
               // Navigate to product list page
              widget.selectedIndexNotifier.value = 0;
-              // Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 12, 59, 140),

@@ -149,12 +149,19 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   void initState() {
     super.initState();
     _selectedIndex= widget.selectedIndexNotifier.value;
+
+     widget.selectedIndexNotifier.addListener(() {
+      setState(() {
+        _selectedIndex = widget.selectedIndexNotifier.value;
+      });
+    });
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    widget.selectedIndexNotifier.value = index;
   }
 
   @override
@@ -246,10 +253,9 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
               },
             ),
           ),
-          // Transparent space below the navigation bar
           Container(
-            height: 20, // Transparent space height
-            color:  Colors.transparent,          ),
+            height: 20,
+            color:  Colors.transparent,),
         ],
       ),
     );
