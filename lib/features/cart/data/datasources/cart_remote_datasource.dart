@@ -6,6 +6,7 @@ abstract class CartRemoteDataSource {
   Future<void> addItemToCart(String userId, CartEntity cartItem);
   Future<void> removeItemFromCart(String userId, CartEntity cartItem);
   Future<List<CartEntity>> getCartItems(String userId);
+  // Future<void> clearCart(String userId);
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -63,4 +64,22 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       );
     }).toList();
   }
+
+//   Future<void> clearCart(String userId) async {
+//   try {
+//     final cartRef = _firestore.collection('carts').doc(userId);
+//     final productsRef = cartRef.collection('products');
+
+//     final batch = _firestore.batch();
+//     final cartItems = await productsRef.get();
+
+//     for (var doc in cartItems.docs) {
+//       batch.delete(doc.reference);
+//     }
+
+//     await batch.commit();
+//   } catch (e) {
+//     throw Exception('Failed to clear cart: $e');
+//   }
+// }
 }

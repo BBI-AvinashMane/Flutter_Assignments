@@ -30,27 +30,60 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     
   }
 
+  // Future<void> _getProductEvent(
+  //   GetProductEvent event,
+  //   Emitter<ProductState> emit,
+  // ) async {
+  //   emit(ProductLoading());
+
+  //   if (_productEntities.isNotEmpty) {
+  //     emit(ProductLoaded(_productEntities));
+  //     return;
+  //   }
+
+  //   final response = await getProductsUsecase.call();
+
+  //   response.fold(
+  //     (failure) => emit(ProductError(failure.message)),
+  //     (products) {
+  //       _productEntities = products;
+  //       emit(ProductLoaded(products));
+  //     },
+  //   );
+  // }
+
   Future<void> _getProductEvent(
-    GetProductEvent event,
-    Emitter<ProductState> emit,
-  ) async {
-    emit(ProductLoading());
+  GetProductEvent event,
+  Emitter<ProductState> emit,
+) async {
+  emit(ProductLoading());
 
-    if (_productEntities.isNotEmpty) {
-      emit(ProductLoaded(_productEntities));
-      return;
-    }
-
-    final response = await getProductsUsecase.call();
-
-    response.fold(
-      (failure) => emit(ProductError(failure.message)),
-      (products) {
-        _productEntities = products;
-        emit(ProductLoaded(products));
-      },
-    );
+  // If products are already cached, load them from memory
+  if (_productEntities.isNotEmpty) {
+    // Load favorite products from Firebase before emitting state
+    await _loadFavouriteProductIdEvent(
+        LoadFavoriteProductsIdEvent(), emit);
+    emit(ProductLoaded(_productEntities));
+    return;
   }
+
+  // Fetch products from API
+  final response = await getProductsUsecase.call();
+
+  response.fold(
+    (failure) => emit(ProductError(failure.message)),
+    (products) async {
+      _productEntities = products;
+
+      // Fetch favorite product IDs from Firebase and update products
+      await _loadFavouriteProductIdEvent(
+          LoadFavoriteProductsIdEvent(), emit);
+
+      emit(ProductLoaded(_productEntities));
+    },
+  );
+}
+
 
   void _getProductDetailsEvent(
     GetProductDetailsEvent event,
@@ -73,22 +106,46 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     }
   }
   
-Future<void> _loadFavouriteProductIdEvent(
-      LoadFavoriteProductsIdEvent event, Emitter<ProductState> emit) async {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
-    final favouriteIdsResponse =
-        await getFavouriteProductsIdUsecase.call(userId);
+// Future<void> _loadFavouriteProductIdEvent(
+//       LoadFavoriteProductsIdEvent event, Emitter<ProductState> emit) async {
+//     final userId = FirebaseAuth.instance.currentUser!.uid;
+//     final favouriteIdsResponse =
+//         await getFavouriteProductsIdUsecase.call(userId);
 
-    favouriteIdsResponse.fold((failure) {
-      emit(ProductLoaded(_productEntities));
-    }, (favoriteIds) {
+//     favouriteIdsResponse.fold((failure) {
+//       emit(ProductLoaded(_productEntities));
+//     }, (favoriteIds) {
+//       for (var product in _productEntities) {
+//         product.isFavorite = favoriteIds.contains(product.id);
+//       }
+
+//       emit(ProductLoaded(_productEntities));
+//     });
+//   }
+
+Future<void> _loadFavouriteProductIdEvent(
+  LoadFavoriteProductsIdEvent event, 
+  Emitter<ProductState> emit,
+) async {
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+  if (userId == null) {
+    emit(ProductLoaded(_productEntities));
+    return;
+  }
+
+  final favouriteIdsResponse = await getFavouriteProductsIdUsecase.call(userId);
+
+  favouriteIdsResponse.fold(
+    (failure) => emit(ProductLoaded(_productEntities)), // Load products even if fetching favorites fails
+    (favoriteIds) {
       for (var product in _productEntities) {
         product.isFavorite = favoriteIds.contains(product.id);
       }
+      emit(ProductLoaded(_productEntities)); // Emit updated product list
+    },
+  );
+}
 
-      emit(ProductLoaded(_productEntities));
-    });
-  }
 
   Future<void> _toggleFavoriteEvent(
       ToggleFavoriteEvent event, Emitter<ProductState> emit) async {

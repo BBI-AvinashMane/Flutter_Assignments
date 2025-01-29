@@ -132,6 +132,7 @@ class _CartPageState extends State<CartPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: ElevatedButton(
                     onPressed: () {
+                       BlocProvider.of<CartBloc>(context).add(ClearCartEvent());
                       showPaymentSuccessDialog(context);
                     },
                     style: ElevatedButton.styleFrom(

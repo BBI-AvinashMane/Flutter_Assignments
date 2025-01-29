@@ -39,4 +39,9 @@ class CartRepositoryImpl implements CartRepository {
       return Left(Exception(e.toString()));
     }
   }
+  //   @override
+  // Future<void> clearCart(String userId) async {
+  //   await remoteDataSource.clearCart(userId);
+  // }
+
 }
